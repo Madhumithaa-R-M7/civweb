@@ -18,15 +18,10 @@ import {
   LineChart,
   Line,
   Legend,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  Area,
   AreaChart,
+  Area,
 } from "recharts";
-import { Download, TrendingUp, TrendingDown } from "lucide-react";
+import { Download, TrendingUp, TrendingDown, Activity, Award, CheckCircle2 } from "lucide-react";
 
 const resolutionRateData = [
   { month: "Jan", rate: 82 },
@@ -43,12 +38,7 @@ const resolutionRateData = [
 
 const departmentPerformanceData = [
   { department: "Roads", efficiency: 88, responseTime: 92, satisfaction: 85 },
-  {
-    department: "Sanitation",
-    efficiency: 92,
-    responseTime: 88,
-    satisfaction: 90,
-  },
+  { department: "Sanitation", efficiency: 92, responseTime: 88, satisfaction: 90 },
   { department: "Lighting", efficiency: 85, responseTime: 90, satisfaction: 87 },
   { department: "Parks", efficiency: 90, responseTime: 85, satisfaction: 92 },
   { department: "Water", efficiency: 87, responseTime: 89, satisfaction: 88 },
@@ -74,202 +64,141 @@ const categoryDistribution = [
 
 export function AnalyticsView() {
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-6 md:p-8 space-y-8 max-w-[1600px] mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <h1 className="text-2xl mb-1">Analytics & Reports</h1>
-          <p className="text-gray-600 text-sm">
-            Comprehensive insights and performance metrics
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Analytics & Reports</h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Comprehensive insights and performance metrics across municipal operations.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
           <Select defaultValue="30days">
-            <SelectTrigger className="w-40">
-              <SelectValue />
+            <SelectTrigger className="w-40 h-9 text-xs border-slate-200 bg-white rounded-xl">
+              <SelectValue placeholder="Period" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7days">Last 7 days</SelectItem>
-              <SelectItem value="30days">Last 30 days</SelectItem>
-              <SelectItem value="90days">Last 90 days</SelectItem>
-              <SelectItem value="12months">Last 12 months</SelectItem>
+            <SelectContent className="rounded-xl">
+              <SelectItem value="7days" className="text-xs">Last 7 days</SelectItem>
+              <SelectItem value="30days" className="text-xs">Last 30 days</SelectItem>
+              <SelectItem value="90days" className="text-xs">Last 90 days</SelectItem>
+              <SelectItem value="12months" className="text-xs">Last 12 months</SelectItem>
             </SelectContent>
           </Select>
-          <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg">
-            <Download className="h-4 w-4 mr-2" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => alert("Downloading Municipal Executive Report...")}
+            className="h-9 text-xs border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl gap-1.5 font-medium"
+          >
+            <Download className="h-3.5 w-3.5 text-slate-500" />
             Export Report
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-none shadow-lg">
-          <CardContent className="p-6 bg-gradient-to-br from-blue-50 to-cyan-100">
-            <p className="text-sm text-gray-700 mb-1">Avg Resolution Time</p>
-            <p className="text-3xl mb-2">2.3 days</p>
-            <div className="flex items-center gap-1 text-green-600 text-sm bg-green-50 px-2 py-1 rounded-full w-fit">
-              <TrendingDown className="h-4 w-4" />
-              <span>-0.5 days from last month</span>
+      {/* KPI Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <Card className="bg-white border-slate-200 shadow-sm rounded-2xl p-5">
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Avg Resolution Rate</span>
+              <div className="text-2xl font-bold text-slate-900 mt-1">93.0%</div>
+              <p className="text-xs text-emerald-600 mt-1 font-medium flex items-center gap-1">
+                <TrendingUp className="h-3 w-3" /> +2.4% vs last month
+              </p>
             </div>
-          </CardContent>
+            <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200">
+              <CheckCircle2 className="h-5 w-5" />
+            </div>
+          </div>
         </Card>
-        <Card className="border-none shadow-lg">
-          <CardContent className="p-6 bg-gradient-to-br from-green-50 to-emerald-100">
-            <p className="text-sm text-gray-700 mb-1">Resolution Rate</p>
-            <p className="text-3xl mb-2">93%</p>
-            <div className="flex items-center gap-1 text-green-600 text-sm bg-green-50 px-2 py-1 rounded-full w-fit">
-              <TrendingUp className="h-4 w-4" />
-              <span>+5% from last month</span>
+
+        <Card className="bg-white border-slate-200 shadow-sm rounded-2xl p-5">
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Avg Response Time</span>
+              <div className="text-2xl font-bold text-slate-900 mt-1">2.4 Hours</div>
+              <p className="text-xs text-emerald-600 mt-1 font-medium flex items-center gap-1">
+                <TrendingDown className="h-3 w-3 text-emerald-600" /> -18 mins faster
+              </p>
             </div>
-          </CardContent>
+            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-200">
+              <Activity className="h-5 w-5" />
+            </div>
+          </div>
         </Card>
-        <Card className="border-none shadow-lg">
-          <CardContent className="p-6 bg-gradient-to-br from-purple-50 to-violet-100">
-            <p className="text-sm text-gray-700 mb-1">Citizen Satisfaction</p>
-            <p className="text-3xl mb-2">4.6/5.0</p>
-            <div className="flex items-center gap-1 text-green-600 text-sm bg-green-50 px-2 py-1 rounded-full w-fit">
-              <TrendingUp className="h-4 w-4" />
-              <span>+0.3 from last month</span>
+
+        <Card className="bg-white border-slate-200 shadow-sm rounded-2xl p-5">
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Citizen CSAT Rating</span>
+              <div className="text-2xl font-bold text-slate-900 mt-1">4.6 / 5.0</div>
+              <p className="text-xs text-slate-500 mt-1 font-medium">Based on 1,420 ratings</p>
             </div>
-          </CardContent>
+            <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 border border-amber-200">
+              <Award className="h-5 w-5" />
+            </div>
+          </div>
         </Card>
-        <Card className="border-none shadow-lg">
-          <CardContent className="p-6 bg-gradient-to-br from-orange-50 to-amber-100">
-            <p className="text-sm text-gray-700 mb-1">Active Officers</p>
-            <p className="text-3xl mb-2">28/32</p>
-            <div className="flex items-center gap-1 text-gray-700 text-sm">
-              <span>87.5% capacity</span>
+
+        <Card className="bg-white border-slate-200 shadow-sm rounded-2xl p-5">
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Active Field Crews</span>
+              <div className="text-2xl font-bold text-slate-900 mt-1">86 Teams</div>
+              <p className="text-xs text-emerald-600 mt-1 font-medium">100% Shift Coverage</p>
             </div>
-          </CardContent>
+            <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200">
+              <Activity className="h-5 w-5" />
+            </div>
+          </div>
         </Card>
       </div>
 
+      {/* Row 1 Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Issue Resolution Rate (Monthly)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={resolutionRateData}>
-                <defs>
-                  <linearGradient id="colorRate" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="rate"
-                  stroke="#3b82f6"
-                  fillOpacity={1}
-                  fill="url(#colorRate)"
-                />
+        {/* Resolution Rate Trend */}
+        <Card className="bg-white border-slate-200 shadow-sm rounded-2xl p-6">
+          <div className="border-b border-slate-100 pb-3 mb-4">
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">Resolution Rate Over Time</h2>
+            <p className="text-xs text-slate-500">Monthly percentage of cases resolved within SLA</p>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={resolutionRateData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey="month" stroke="#94a3b8" fontSize={11} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} domain={[70, 100]} />
+                <Tooltip contentStyle={{ backgroundColor: "#ffffff", borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: "12px" }} />
+                <Area type="monotone" dataKey="rate" name="Resolution Rate (%)" stroke="#10b981" fill="#ecfdf5" strokeWidth={2.5} />
               </AreaChart>
             </ResponsiveContainer>
-          </CardContent>
+          </div>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Citizen Satisfaction Trend</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={satisfactionData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="week" />
-                <YAxis domain={[0, 5]} />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="rating"
-                  stroke="#22c55e"
-                  strokeWidth={3}
-                  dot={{ fill: "#22c55e", r: 5 }}
-                />
-              </LineChart>
+        {/* Department Performance */}
+        <Card className="bg-white border-slate-200 shadow-sm rounded-2xl p-6">
+          <div className="border-b border-slate-100 pb-3 mb-4">
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">Department Performance Comparison</h2>
+            <p className="text-xs text-slate-500">Efficiency and customer satisfaction scores by division</p>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={departmentPerformanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey="department" stroke="#94a3b8" fontSize={11} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} domain={[0, 100]} />
+                <Tooltip contentStyle={{ backgroundColor: "#ffffff", borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: "12px" }} />
+                <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
+                <Bar dataKey="efficiency" name="Efficiency (%)" fill="#1e3a8a" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="satisfaction" name="Satisfaction Score (%)" fill="#10b981" radius={[6, 6, 0, 0]} />
+              </BarChart>
             </ResponsiveContainer>
-          </CardContent>
+          </div>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Department Performance Metrics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <RadarChart data={departmentPerformanceData}>
-              <PolarGrid />
-              <PolarAngleAxis dataKey="department" />
-              <PolarRadiusAxis angle={90} domain={[0, 100]} />
-              <Radar
-                name="Efficiency"
-                dataKey="efficiency"
-                stroke="#3b82f6"
-                fill="#3b82f6"
-                fillOpacity={0.5}
-              />
-              <Radar
-                name="Response Time"
-                dataKey="responseTime"
-                stroke="#22c55e"
-                fill="#22c55e"
-                fillOpacity={0.5}
-              />
-              <Radar
-                name="Satisfaction"
-                dataKey="satisfaction"
-                stroke="#f97316"
-                fill="#f97316"
-                fillOpacity={0.5}
-              />
-              <Legend />
-            </RadarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Issue Categories Distribution</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {categoryDistribution.map((item) => (
-              <div key={item.category}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm">{item.category}</span>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`text-sm ${
-                        item.change.startsWith("+")
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {item.change}
-                    </span>
-                    <span className="text-sm font-medium w-12 text-right">
-                      {item.count}
-                    </span>
-                  </div>
-                </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-blue-500 rounded-full"
-                    style={{ width: `${(item.count / 324) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

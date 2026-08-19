@@ -15,10 +15,11 @@ import {
   Calendar,
   Building2,
   Play,
-  UserPlus,
-  Send,
   CheckCircle2,
   Sparkles,
+  FileText,
+  Clock,
+  Send,
 } from "lucide-react";
 import {
   Select,
@@ -48,26 +49,12 @@ interface IssueDetailModalProps {
 }
 
 const timeline = [
-  {
-    date: "2025-10-28 10:30 AM",
-    action: "Issue reported by citizen",
-    user: "Maria Garcia",
-  },
-  {
-    date: "2025-10-28 11:15 AM",
-    action: "Assigned to officer",
-    user: "Admin User",
-  },
-  {
-    date: "2025-10-28 02:45 PM",
-    action: "Officer en route to location",
-    user: "Sanjay Kumar (Field Worker)",
-  },
-  {
-    date: "2025-10-28 03:20 PM",
-    action: "Work in progress & GPS verified",
-    user: "Sanjay Kumar (Field Worker)",
-  },
+  { stage: "Reported", date: "2026-08-16 10:30 AM", user: "Maria Garcia (Citizen)" },
+  { stage: "AI Classified", date: "2026-08-16 10:31 AM", user: "Civic Vision Engine (96.4% Match)" },
+  { stage: "Assigned", date: "2026-08-16 11:15 AM", user: "John Smith (Municipal Officer)" },
+  { stage: "Field Worker Dispatched", date: "2026-08-16 01:20 PM", user: "Sanjay Kumar (Field Worker W-402)" },
+  { stage: "Work Started", date: "2026-08-16 02:45 PM", user: "Site QR Scanned & Verified" },
+  { stage: "Resolved", date: "2026-08-17 09:10 AM", user: "AI Resolution Proof Approved" },
 ];
 
 export function IssueDetailModal({
@@ -77,264 +64,207 @@ export function IssueDetailModal({
 }: IssueDetailModalProps) {
   if (!issue) return null;
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "High":
-        return "bg-red-100 text-red-700 border border-red-200";
-      case "Medium":
-        return "bg-orange-100 text-orange-700 border border-orange-200";
-      case "Low":
-        return "bg-green-100 text-green-700 border border-green-200";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Resolved":
-        return "bg-green-100 text-green-700 border border-green-200";
-      case "In Progress":
-        return "bg-blue-100 text-blue-700 border border-blue-200";
-      case "Pending":
-        return "bg-yellow-100 text-yellow-700 border border-yellow-200";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
-
   const handleApprove = () => {
-    alert(`Proof approved. Ticket ${issue.id} has been marked as RESOLVED. 50 reward points credited to Sanjay Kumar.`);
+    alert(`Proof approved. Case ${issue.id} marked as RESOLVED.`);
     onClose();
   };
 
   const handleReject = () => {
-    alert(`Work proof rejected. Sanjay Kumar notified via worker portal to re-clean the site.`);
+    alert(`Work proof rejected. Field worker notified.`);
     onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between border-b pb-3">
-            <span className="text-xl font-bold text-gray-800">Issue Details - {issue.id}</span>
-            <div className="flex gap-2">
-              <Badge className={getPriorityColor(issue.priority)}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl border-slate-200 p-6 shadow-xl">
+        <DialogHeader className="border-b border-slate-100 pb-4">
+          <DialogTitle className="flex flex-wrap items-center justify-between gap-3 text-slate-900">
+            <span className="text-xl font-bold">Issue #{issue.id}</span>
+            <div className="flex items-center gap-2">
+              <Badge className={
+                issue.priority === "High" ? "bg-red-50 text-red-700 border-red-200" :
+                issue.priority === "Medium" ? "bg-amber-50 text-amber-700 border-amber-200" :
+                "bg-emerald-50 text-emerald-700 border-emerald-200"
+              }>
                 {issue.priority} Priority
               </Badge>
-              <Badge className={getStatusColor(issue.status)}>
+              <Badge className={
+                issue.status === "Resolved" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                issue.status === "In Progress" ? "bg-blue-50 text-blue-700 border-blue-200" :
+                "bg-amber-50 text-amber-700 border-amber-200"
+              }>
                 {issue.status}
               </Badge>
             </div>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 mt-4">
+        <div className="space-y-6 pt-2">
+          {/* Main Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Work Proof Photos (Before vs After)</h3>
-              
-              <div className="grid grid-cols-2 gap-2 bg-gray-50 p-2 rounded-lg border border-gray-150">
+            
+            {/* Left: Photos & AI Verification */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider">Work Proof Photos (Before vs After)</h3>
+              <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <div>
-                  <span className="text-[9px] text-gray-500 font-bold block mb-1">BEFORE (Reported):</span>
+                  <span className="text-[10px] text-slate-500 font-bold block mb-1">BEFORE (Reported):</span>
                   <ImageWithFallback
                     src={issue.photo}
                     alt={issue.category}
-                    className="w-full h-40 object-cover rounded-lg border border-gray-200"
+                    className="w-full h-36 object-cover rounded-lg border border-slate-200"
                   />
                 </div>
                 <div>
-                  <span className="text-[9px] text-gray-500 font-bold block mb-1">AFTER (Worker Upload):</span>
+                  <span className="text-[10px] text-slate-500 font-bold block mb-1">AFTER (Field Upload):</span>
                   <ImageWithFallback
                     src={
                       issue.status === "Pending"
                         ? "https://images.unsplash.com/photo-1574676039880-73da8368f0eb?w=500&h=300&fit=crop"
                         : "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=500&h=300&fit=crop"
                     }
-                    alt="Proof of Cleanliness"
-                    className="w-full h-40 object-cover rounded-lg border border-gray-200"
+                    alt="After Repair"
+                    className="w-full h-36 object-cover rounded-lg border border-emerald-300"
                   />
                 </div>
               </div>
 
               {/* AI Verification box */}
-              <div className="mt-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 flex items-center justify-between shadow-inner">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4.5 w-4.5 text-green-600 animate-pulse" />
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3.5 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="h-4 w-4 text-emerald-600 shrink-0" />
                   <div>
-                    <p className="text-[10px] text-green-700 font-bold uppercase tracking-wider">AI Image Cleanliness Verification</p>
-                    <p className="text-xs text-green-900 mt-0.5">
-                      Cleanliness Score: <span className="font-bold text-green-700 bg-green-100 px-1.5 py-0.5 rounded">96.4% Match</span>
-                    </p>
+                    <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block">AI Classification & Verification</span>
+                    <span className="text-xs text-emerald-950 font-medium">Cleanliness Score: <strong>96.4% Match</strong></span>
                   </div>
                 </div>
-                <Badge className="bg-green-600 text-white text-[10px]">Verified</Badge>
-              </div>
-
-              <div className="mt-3 flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1 text-xs">
-                  <Play className="h-4 w-4 mr-2" />
-                  Play Citizen Voice Note
-                </Button>
+                <Badge className="bg-emerald-600 text-white text-[10px]">Verified</Badge>
               </div>
             </div>
 
+            {/* Right: Issue & Citizen Information */}
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Issue Information</h3>
-                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-150">
-                  <div className="flex items-start gap-3">
-                    <Building2 className="h-5 w-5 text-gray-500 mt-0.5" />
-                    <div>
-                      <p className="text-xs text-gray-550 font-medium">Category</p>
-                      <p className="text-sm font-semibold text-gray-800">{issue.category}</p>
-                    </div>
+                <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">Issue Information</h3>
+                <div className="space-y-2.5 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Category:</span>
+                    <span className="font-bold text-slate-900">{issue.category}</span>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
-                    <div>
-                      <p className="text-xs text-gray-550 font-medium">Location</p>
-                      <p className="text-sm font-semibold text-gray-800">{issue.location}</p>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Location:</span>
+                    <span className="font-semibold text-slate-900">{issue.location}</span>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
-                    <div>
-                      <p className="text-xs text-gray-550 font-medium">Reported Date</p>
-                      <p className="text-sm font-semibold text-gray-800">{issue.date}</p>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Department:</span>
+                    <span className="font-semibold text-slate-900">{issue.department}</span>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Building2 className="h-5 w-5 text-gray-500 mt-0.5" />
-                    <div>
-                      <p className="text-xs text-gray-550 font-medium">Department</p>
-                      <p className="text-sm font-semibold text-gray-800">{issue.department}</p>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Assigned Officer:</span>
+                    <span className="font-semibold text-blue-900">{issue.officer}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Reported Date:</span>
+                    <span className="text-slate-700">{issue.date}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Citizen Information</h3>
-                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-150">
-                  <div className="flex items-center gap-3">
-                    <User className="h-5 w-5 text-gray-500" />
-                    <div>
-                      <p className="text-xs text-gray-550 font-medium">Name</p>
-                      <p className="text-sm font-semibold text-gray-800">Maria Garcia</p>
-                    </div>
+                <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">Citizen Information</h3>
+                <div className="space-y-2.5 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Reporter:</span>
+                    <span className="font-bold text-slate-900">Maria Garcia</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Phone className="h-5 w-5 text-gray-500" />
-                    <div>
-                      <p className="text-xs text-gray-550 font-medium">Phone</p>
-                      <p className="text-sm font-semibold text-gray-800">+1 (555) 123-4567</p>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Phone:</span>
+                    <span className="text-slate-700">+1 (555) 123-4567</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Mail className="h-5 w-5 text-gray-500" />
-                    <div>
-                      <p className="text-xs text-gray-550 font-medium">Email</p>
-                      <p className="text-sm font-semibold text-gray-800">maria.garcia@email.com</p>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Email:</span>
+                    <span className="text-slate-700">maria.garcia@email.com</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Description */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Description</h3>
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-150">
-              <p className="text-gray-700 text-sm leading-relaxed">
-                Large pothole on Main Street near the intersection with 5th
-                Avenue. The pothole is approximately 2 feet wide and 6 inches
-                deep, posing a hazard to vehicles and pedestrians. Water
-                accumulates in the hole during rain, making it even more
-                dangerous.
-              </p>
+            <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">Case Description</h3>
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed">
+              Large pothole on Main Street near intersection with 5th Avenue. The pothole is approximately 2 feet wide and 6 inches deep, posing a hazard to vehicles and pedestrians. Water accumulates in the hole during rain, requiring asphalt filler and seal.
             </div>
           </div>
 
+          {/* Vertical Timeline */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Location Map</h3>
-            <div className="h-40 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
-              <div className="text-center">
-                <MapPin className="h-8 w-8 text-gray-400 mx-auto mb-1.5" />
-                <p className="text-gray-600 text-xs">
-                  Map coordinates: {issue.location}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Progress Timeline</h3>
-            <div className="space-y-3">
-              {timeline.map((item, index) => (
-                <div key={index} className="flex gap-4">
+            <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider mb-3">Case Progression Timeline</h3>
+            <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              {timeline.map((item, idx) => (
+                <div key={idx} className="flex items-start gap-3 text-xs">
                   <div className="flex flex-col items-center">
-                    <div className="w-3 h-3 rounded-full bg-blue-500" />
-                    {index < timeline.length - 1 && (
-                      <div className="w-0.5 h-full bg-gray-200 my-1" />
-                    )}
+                    <span className="h-2.5 w-2.5 rounded-full bg-blue-600 mt-1"></span>
+                    {idx < timeline.length - 1 && <span className="h-5 w-0.5 bg-slate-200 my-0.5"></span>}
                   </div>
-                  <div className="flex-1 pb-4">
-                    <p className="text-xs font-semibold text-gray-800">{item.action}</p>
-                    <p className="text-[10px] text-gray-500 mt-0.5">
-                      {item.date} • {item.user}
-                    </p>
+                  <div className="flex-1 flex flex-wrap items-center justify-between gap-1">
+                    <span className="font-bold text-slate-900">{item.stage}</span>
+                    <span className="text-[11px] text-slate-500">{item.user} • <span className="font-mono">{item.date}</span></span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <Separator />
+          <Separator className="bg-slate-200" />
 
+          {/* Case Actions Bar */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2 font-bold">Actions</h3>
-            <div className="flex flex-wrap gap-3">
-              <div className="flex-1 min-w-48">
+            <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider mb-3">Case Management Actions</h3>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-3 flex-1">
                 <Select defaultValue={issue.officer}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-44 h-9 text-xs border-slate-200 bg-white rounded-xl">
                     <SelectValue placeholder="Assign Officer" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="John Smith">John Smith</SelectItem>
-                    <SelectItem value="Sarah Johnson">Sarah Johnson</SelectItem>
-                    <SelectItem value="Mike Davis">Mike Davis</SelectItem>
-                    <SelectItem value="Sanjay Kumar">Sanjay Kumar (Field Worker)</SelectItem>
-                    <SelectItem value="Unassigned">Unassigned</SelectItem>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="John Smith" className="text-xs">John Smith</SelectItem>
+                    <SelectItem value="Sarah Johnson" className="text-xs">Sarah Johnson</SelectItem>
+                    <SelectItem value="Mike Davis" className="text-xs">Mike Davis</SelectItem>
+                    <SelectItem value="Sanjay Kumar" className="text-xs">Sanjay Kumar (Field Worker)</SelectItem>
+                    <SelectItem value="Unassigned" className="text-xs">Unassigned</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="flex-1 min-w-48">
+
                 <Select defaultValue={issue.status}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Change Status" />
+                  <SelectTrigger className="w-40 h-9 text-xs border-slate-200 bg-white rounded-xl">
+                    <SelectValue placeholder="Update Status" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
-                    <SelectItem value="Resolved">Resolved</SelectItem>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="Pending" className="text-xs">Pending</SelectItem>
+                    <SelectItem value="In Progress" className="text-xs">In Progress</SelectItem>
+                    <SelectItem value="Resolved" className="text-xs">Resolved</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              
-              <Button onClick={handleReject} variant="destructive" className="font-semibold text-xs">
-                Reject Proof
-              </Button>
-              <Button onClick={handleApprove} className="bg-green-600 hover:bg-green-700 font-semibold text-xs text-white">
-                <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                Approve & Mark Resolved
-              </Button>
+
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={handleReject} className="h-9 text-xs border-slate-200 text-red-600 hover:bg-red-50 rounded-xl">
+                  Reject Proof
+                </Button>
+                <Button size="sm" onClick={handleApprove} className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-1.5 font-semibold">
+                  <CheckCircle2 className="h-4 w-4" /> Approve & Resolve
+                </Button>
+                <Button variant="ghost" size="sm" onClick={onClose} className="h-9 text-xs text-slate-600 rounded-xl">
+                  Close
+                </Button>
+              </div>
             </div>
           </div>
+
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-

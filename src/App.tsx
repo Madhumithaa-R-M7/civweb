@@ -10,6 +10,7 @@ import { FeedbackView } from "./components/FeedbackView";
 import { SettingsView } from "./components/SettingsView";
 import { LoginPage } from "./components/LoginPage";
 import { WorkerPortal } from "./components/worker/WorkerPortal";
+import { CitizenPortal } from "./components/citizen/CitizenPortal";
 import { RewardsView } from "./components/RewardsView";
 
 interface Issue {
@@ -26,13 +27,13 @@ interface Issue {
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState<"officer" | "worker">("officer");
+  const [userRole, setUserRole] = useState<"officer" | "worker" | "citizen">("officer");
   const [currentView, setCurrentView] = useState("dashboard");
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [issueFilter, setIssueFilter] = useState<string>("all");
 
-  const handleLogin = (role: "officer" | "worker") => {
+  const handleLogin = (role: "officer" | "worker" | "citizen") => {
     setUserRole(role);
     setIsLoggedIn(true);
   };
@@ -88,18 +89,23 @@ export default function App() {
     return <LoginPage onLogin={handleLogin} />;
   }
 
-  // Route to Field Worker responsive app
+  // Route to Field Worker responsive portal
   if (userRole === "worker") {
     return <WorkerPortal onLogout={handleLogout} />;
   }
 
+  // Route to Citizen Smart Portal
+  if (userRole === "citizen") {
+    return <CitizenPortal onLogout={handleLogout} />;
+  }
+
   // Route to Officer / Admin Dashboard
   return (
-    <div className="h-screen flex bg-gray-50">
+    <div className="h-screen flex bg-slate-100 antialiased selection:bg-blue-600 selection:text-white">
       <Sidebar currentView={currentView} onViewChange={setCurrentView} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <TopNavbar onLogout={handleLogout} onNavigate={handleNavigate} />
-        <main className="flex-1 overflow-y-auto">{renderView()}</main>
+        <main className="flex-1 overflow-y-auto bg-slate-50">{renderView()}</main>
       </div>
       <IssueDetailModal
         issue={selectedIssue}

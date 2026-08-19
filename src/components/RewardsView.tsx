@@ -1,37 +1,20 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import {
   Award,
   Check,
   X,
-  TrendingUp,
   Gift,
   Coins,
   ShieldCheck,
-  Clock,
-  Sparkles,
   Search,
-  UserCheck,
-  AlertCircle
+  CheckCircle2,
 } from "lucide-react";
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  BarChart,
-  Bar,
-  Cell
-} from "recharts";
+import { Input } from "./ui/input";
 
 interface Claim {
   id: string;
@@ -61,7 +44,7 @@ export function RewardsView() {
 
   const [workerClaims, setWorkerClaims] = useState<WorkerClaim[]>([
     { id: "WCF-501", worker: "Sanjay Kumar", item: "Free Lunch Coupon", cost: 150, date: "Today, 11:20 AM", status: "Pending" },
-    { id: "WCF-502", worker: "Ramesh Patel", item: "Safety Gear Upgrade (Boots)", cost: 250, date: "Yesterday", status: "Pending" },
+    { id: "WCF-502", worker: "Ramesh Patel", item: "Safety Boots Upgrade", cost: 250, date: "Yesterday", status: "Pending" },
     { id: "WCF-503", worker: "Anil Singh", item: "Annual Health Checkup Voucher", cost: 300, date: "3 days ago", status: "Approved" }
   ]);
 
@@ -70,461 +53,198 @@ export function RewardsView() {
 
   const handleApproveCitizen = (id: string) => {
     setCitizenClaims(prev => prev.map(c => c.id === id ? { ...c, status: "Approved" } : c));
-    alert(`Claim ${id} Approved! Redemption voucher sent to user.`);
-  };
-
-  const borderClass = (status: string) => {
-    switch (status) {
-      case "Approved": return "bg-green-100 text-green-700 border-green-200";
-      case "Rejected": return "bg-red-100 text-red-700 border-red-200";
-      default: return "bg-amber-100 text-amber-700 border-amber-200";
-    }
+    alert(`Voucher Claim ${id} Approved!`);
   };
 
   const handleRejectCitizen = (id: string) => {
     setCitizenClaims(prev => prev.map(c => c.id === id ? { ...c, status: "Rejected" } : c));
-    alert(`Claim ${id} Rejected.`);
+    alert(`Voucher Claim ${id} Rejected.`);
   };
 
   const handleApproveWorker = (id: string) => {
     setWorkerClaims(prev => prev.map(w => w.id === id ? { ...w, status: "Approved" } : w));
-    alert(`Worker Welfare Benefit ${id} Approved! Benefit voucher dispatched to worker device.`);
+    alert(`Worker Benefit ${id} Approved!`);
   };
 
   const handleRejectWorker = (id: string) => {
     setWorkerClaims(prev => prev.map(w => w.id === id ? { ...w, status: "Rejected" } : w));
-    alert(`Worker Welfare Benefit ${id} Rejected.`);
+    alert(`Worker Benefit ${id} Rejected.`);
   };
 
-  // KPI Stats metrics
-  const pendingCitizenCount = citizenClaims.filter(c => c.status === "Pending").length;
-  const pendingWorkerCount = workerClaims.filter(w => w.status === "Pending").length;
-  const totalPointsRedeemed = [...citizenClaims, ...workerClaims]
-    .filter(c => c.status === "Approved")
-    .reduce((acc, c) => acc + c.cost, 0);
-
-  // Leaderboard data
-  const citizenLeaderboard = [
-    { name: "Priya Krishnan", points: 840, reports: 12, badge: "Eco Warrior Elite", color: "from-emerald-500 to-green-600" },
-    { name: "Rahul Sharma", points: 670, reports: 9, badge: "Civic Champion", color: "from-blue-500 to-indigo-600" },
-    { name: "Amit Roy", points: 550, reports: 8, badge: "Community Star", color: "from-amber-500 to-orange-600" },
-    { name: "Neha Patil", points: 490, reports: 7, badge: "Local Guardian", color: "from-purple-500 to-pink-600" },
-    { name: "John Doe (You)", points: 250, reports: 2, badge: "Green Scout", color: "from-teal-500 to-emerald-600" }
-  ];
-
-  const workerLeaderboard = [
-    { name: "Sanjay Kumar", points: 650, completed: 18, rating: "4.9/5", badge: "Super Worker", color: "from-green-500 to-emerald-600" },
-    { name: "Lisa Anderson", points: 580, completed: 15, rating: "4.8/5", badge: "Efficiency Hero", color: "from-blue-500 to-cyan-600" },
-    { name: "Sarah Johnson", points: 520, completed: 14, rating: "4.7/5", badge: "Sanitation Star", color: "from-orange-500 to-amber-600" },
-    { name: "David Martinez", points: 490, completed: 13, rating: "4.6/5", badge: "Water Expert", color: "from-indigo-500 to-purple-600" }
-  ];
-
-  // Analytics mock data
-  const pointsTrend = [
-    { week: "Week 1", issued: 1200, redeemed: 800 },
-    { week: "Week 2", issued: 1800, redeemed: 1100 },
-    { week: "Week 3", issued: 1500, redeemed: 1300 },
-    { week: "Week 4", issued: 2200, redeemed: 1600 },
-    { week: "Week 5", issued: 2900, redeemed: 2100 },
-    { week: "Week 6", issued: 3400, redeemed: 2600 }
-  ];
-
-  const popularItems = [
-    { name: "Metro Ticket", count: 184, fill: "#3b82f6" },
-    { name: "Tree Planting", count: 125, fill: "#10b981" },
-    { name: "Parking Pass", count: 96, fill: "#f59e0b" },
-    { name: "Water Bottle", count: 72, fill: "#ec4899" },
-    { name: "Lunch Coupon", count: 64, fill: "#8b5cf6" }
-  ];
-
   return (
-    <div className="p-6 space-y-6">
-      {/* Title block */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl mb-1 flex items-center gap-2 font-bold text-gray-900">
-            <Award className="h-6 w-6 text-blue-600 animate-pulse" />
-            Civic Rewards & Worker Welfare Hub
-          </h1>
-          <p className="text-gray-600 text-sm font-medium">
-            Approve green voucher redemptions, manage worker benefits, and view community engagement scorecards.
-          </p>
-        </div>
+    <div className="p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
+      {/* Header */}
+      <div className="border-b border-slate-200 pb-5">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Rewards & Welfare Management</h1>
+        <p className="text-xs text-slate-500 mt-1">
+          Review citizen reward voucher redemptions and field worker welfare claims.
+        </p>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-200">
-          <CardContent className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 flex items-start justify-between relative overflow-hidden">
-            <div className="relative z-10">
-              <p className="text-xs text-gray-600 mb-1 font-semibold">Eco-Points Redeemed</p>
-              <p className="text-3xl font-bold text-blue-900">{totalPointsRedeemed} pts</p>
-              <span className="text-[10px] text-blue-700 bg-blue-200/50 px-2 py-0.5 rounded font-bold mt-2 inline-block">
-                All-time active users
-              </span>
+      {/* KPI Stats Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <Card className="bg-white border-slate-200 shadow-sm rounded-2xl p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Pending Redemptions</span>
+              <div className="text-2xl font-bold text-slate-900 mt-1">
+                {citizenClaims.filter(c => c.status === "Pending").length + workerClaims.filter(w => w.status === "Pending").length} Claims
+              </div>
             </div>
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-md text-white relative z-10">
-              <Coins className="h-6 w-6" />
+            <div className="bg-amber-50 text-amber-600 p-3 rounded-xl border border-amber-200">
+              <Gift className="h-5 w-5" />
             </div>
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-          </CardContent>
+          </div>
         </Card>
 
-        <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-200">
-          <CardContent className="p-6 bg-gradient-to-br from-amber-50 to-amber-100 flex items-start justify-between relative overflow-hidden">
-            <div className="relative z-10">
-              <p className="text-xs text-gray-600 mb-1 font-semibold">Pending Citizen Claims</p>
-              <p className="text-3xl font-bold text-amber-900">{pendingCitizenCount}</p>
-              <span className="text-[10px] text-amber-700 bg-amber-200/50 px-2 py-0.5 rounded font-bold mt-2 inline-block">
-                Requires review
-              </span>
+        <Card className="bg-white border-slate-200 shadow-sm rounded-2xl p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Total Points Redeemed</span>
+              <div className="text-2xl font-bold text-slate-900 mt-1">1,450 Points</div>
             </div>
-            <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-3 rounded-xl shadow-md text-white relative z-10">
-              <Gift className="h-6 w-6" />
+            <div className="bg-emerald-50 text-emerald-600 p-3 rounded-xl border border-emerald-200">
+              <Coins className="h-5 w-5" />
             </div>
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-          </CardContent>
+          </div>
         </Card>
 
-        <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-200">
-          <CardContent className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 flex items-start justify-between relative overflow-hidden">
-            <div className="relative z-10">
-              <p className="text-xs text-gray-600 mb-1 font-semibold">Worker Benefits Pending</p>
-              <p className="text-3xl font-bold text-purple-900">{pendingWorkerCount}</p>
-              <span className="text-[10px] text-purple-700 bg-purple-200/50 px-2 py-0.5 rounded font-bold mt-2 inline-block">
-                Welfare dispatch
-              </span>
+        <Card className="bg-white border-slate-200 shadow-sm rounded-2xl p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Approved Vouchers</span>
+              <div className="text-2xl font-bold text-slate-900 mt-1">128 Vouchers</div>
             </div>
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-xl shadow-md text-white relative z-10">
-              <UserCheck className="h-6 w-6" />
+            <div className="bg-blue-50 text-blue-600 p-3 rounded-xl border border-blue-200">
+              <Award className="h-5 w-5" />
             </div>
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-200">
-          <CardContent className="p-6 bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-start justify-between relative overflow-hidden">
-            <div className="relative z-10">
-              <p className="text-xs text-gray-600 mb-1 font-semibold">Top Contributor Rank</p>
-              <p className="text-lg font-bold text-emerald-950 truncate max-w-[150px]">Priya Krishnan</p>
-              <span className="text-[10px] text-emerald-700 bg-emerald-200/50 px-2 py-0.5 rounded font-bold mt-2 inline-block">
-                840 pts • 12 Reports
-              </span>
-            </div>
-            <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-3 rounded-xl shadow-md text-white relative z-10">
-              <Sparkles className="h-6 w-6" />
-            </div>
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-          </CardContent>
+          </div>
         </Card>
       </div>
 
-      {/* Tabs Layout */}
       <Tabs defaultValue="citizen" className="space-y-6">
-        <TabsList className="bg-gray-150 p-1 rounded-xl flex gap-1 border border-gray-200/40 w-max shadow-inner">
-          <TabsTrigger value="citizen" className="rounded-lg text-xs font-semibold px-4 py-2">Citizen Redemptions</TabsTrigger>
-          <TabsTrigger value="worker" className="rounded-lg text-xs font-semibold px-4 py-2">Worker Benefits</TabsTrigger>
-          <TabsTrigger value="leaderboards" className="rounded-lg text-xs font-semibold px-4 py-2">Leaderboards</TabsTrigger>
-          <TabsTrigger value="analytics" className="rounded-lg text-xs font-semibold px-4 py-2">Analytics & Trends</TabsTrigger>
+        <TabsList className="bg-slate-200/70 p-1 rounded-xl">
+          <TabsTrigger value="citizen" className="text-xs rounded-lg">Citizen Redemptions</TabsTrigger>
+          <TabsTrigger value="worker" className="text-xs rounded-lg">Worker Welfare Claims</TabsTrigger>
         </TabsList>
 
-        {/* Citizen Redemptions Tab */}
         <TabsContent value="citizen" className="space-y-4">
-          <Card className="shadow-lg border-gray-200 overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b flex flex-col md:flex-row md:items-center justify-between py-4 space-y-2 md:space-y-0">
-              <div>
-                <CardTitle className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
-                  <Gift className="h-4.5 w-4.5 text-blue-600" />
-                  Citizen Eco-Voucher Redemptions
-                </CardTitle>
-                <CardDescription className="text-xs text-gray-500">Review and approve public incentives requested by green citizens.</CardDescription>
-              </div>
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search by email..."
-                  className="pl-9 h-9 text-xs border-gray-300"
-                  value={searchCitizen}
-                  onChange={e => setSearchCitizen(e.target.value)}
-                />
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-gray-50/70 border-b">
-                    <TableHead className="text-xs">Claim ID</TableHead>
-                    <TableHead className="text-xs">Citizen Email</TableHead>
-                    <TableHead className="text-xs">Reward Voucher</TableHead>
-                    <TableHead className="text-xs">Point Cost</TableHead>
-                    <TableHead className="text-xs">Requested On</TableHead>
-                    <TableHead className="text-xs">Status</TableHead>
-                    <TableHead className="text-right text-xs">Actions</TableHead>
+          <Card className="bg-white border-slate-200 shadow-sm rounded-2xl overflow-hidden p-4 space-y-4">
+            <div className="relative w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search citizen claims..."
+                value={searchCitizen}
+                onChange={e => setSearchCitizen(e.target.value)}
+                className="pl-9 h-9 text-xs bg-slate-50 border-slate-200 rounded-xl"
+              />
+            </div>
+
+            <Table>
+              <TableHeader className="bg-slate-50 border-b border-slate-200">
+                <TableRow>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5">Claim ID</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5">Citizen Email</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5">Reward Title</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5">Points</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5">Status</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5 text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-slate-100 text-xs">
+                {citizenClaims.map((claim) => (
+                  <TableRow key={claim.id} className="hover:bg-slate-50/80">
+                    <TableCell className="font-mono font-bold text-blue-900 py-3.5">{claim.id}</TableCell>
+                    <TableCell className="text-slate-700 py-3.5 font-medium">{claim.email}</TableCell>
+                    <TableCell className="font-semibold text-slate-900 py-3.5">{claim.reward}</TableCell>
+                    <TableCell className="text-emerald-700 font-bold py-3.5">{claim.cost} PTS</TableCell>
+                    <TableCell className="py-3.5">
+                      <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                        claim.status === "Approved" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                        claim.status === "Rejected" ? "bg-red-50 text-red-700 border-red-200" :
+                        "bg-amber-50 text-amber-700 border-amber-200"
+                      }`}>
+                        {claim.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-3.5 text-right">
+                      {claim.status === "Pending" ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <Button size="sm" onClick={() => handleApproveCitizen(claim.id)} className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg">
+                            <Check className="h-3.5 w-3.5 mr-1" /> Approve
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => handleRejectCitizen(claim.id)} className="h-7 text-xs border-slate-200 text-red-600 hover:bg-red-50 rounded-lg">
+                            <X className="h-3.5 w-3.5 mr-1" /> Reject
+                          </Button>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 italic">Processed</span>
+                      )}
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {citizenClaims
-                    .filter(c => c.email.toLowerCase().includes(searchCitizen.toLowerCase()))
-                    .map(claim => (
-                      <TableRow key={claim.id} className="hover:bg-gray-50/30 border-b">
-                        <TableCell className="font-mono text-xs font-semibold">{claim.id}</TableCell>
-                        <TableCell className="font-medium text-gray-700 text-xs">{claim.email}</TableCell>
-                        <TableCell>
-                          <span className="bg-blue-50 text-blue-800 border border-blue-100 text-[10px] px-2.5 py-0.5 rounded-full font-bold">
-                            {claim.reward}
-                          </span>
-                        </TableCell>
-                        <TableCell className="font-bold text-xs text-blue-900">{claim.cost} pts</TableCell>
-                        <TableCell className="text-gray-500 text-xs">{claim.date}</TableCell>
-                        <TableCell>
-                          <Badge className={`text-[10px] font-bold border ${borderClass(claim.status)}`}>
-                            {claim.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {claim.status === "Pending" ? (
-                            <div className="flex justify-end gap-1.5">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 text-xs border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
-                                onClick={() => handleApproveCitizen(claim.id)}
-                              >
-                                <Check className="h-3.5 w-3.5 mr-1" />
-                                Approve
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 text-xs border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
-                                onClick={() => handleRejectCitizen(claim.id)}
-                              >
-                                <X className="h-3.5 w-3.5 mr-1" />
-                                Decline
-                              </Button>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-gray-400 italic font-medium">Reviewed</span>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </CardContent>
+                ))}
+              </TableBody>
+            </Table>
           </Card>
         </TabsContent>
 
-        {/* Worker Welfare Benefits Tab */}
         <TabsContent value="worker" className="space-y-4">
-          <Card className="shadow-lg border-gray-200 overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b flex flex-col md:flex-row md:items-center justify-between py-4 space-y-2 md:space-y-0">
-              <div>
-                <CardTitle className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
-                  <UserCheck className="h-4.5 w-4.5 text-purple-600" />
-                  Field Force Welfare Benefit Logs
-                </CardTitle>
-                <CardDescription className="text-xs text-gray-500">Approve medical/lunch benefits and equipment bonuses claimed by workers.</CardDescription>
-              </div>
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search by worker name..."
-                  className="pl-9 h-9 text-xs border-gray-300"
-                  value={searchWorker}
-                  onChange={e => setSearchWorker(e.target.value)}
-                />
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-gray-50/70 border-b">
-                    <TableHead className="text-xs">Benefit ID</TableHead>
-                    <TableHead className="text-xs">Field Worker</TableHead>
-                    <TableHead className="text-xs">Benefit Item</TableHead>
-                    <TableHead className="text-xs">Points Spent</TableHead>
-                    <TableHead className="text-xs">Claimed Date</TableHead>
-                    <TableHead className="text-xs">Status</TableHead>
-                    <TableHead className="text-right text-xs">Actions</TableHead>
+          <Card className="bg-white border-slate-200 shadow-sm rounded-2xl overflow-hidden p-4 space-y-4">
+            <div className="relative w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search worker welfare claims..."
+                value={searchWorker}
+                onChange={e => setSearchWorker(e.target.value)}
+                className="pl-9 h-9 text-xs bg-slate-50 border-slate-200 rounded-xl"
+              />
+            </div>
+
+            <Table>
+              <TableHeader className="bg-slate-50 border-b border-slate-200">
+                <TableRow>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5">Claim ID</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5">Worker Name</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5">Welfare Benefit</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5">Cost</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5">Status</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-500 py-3.5 text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-slate-100 text-xs">
+                {workerClaims.map((claim) => (
+                  <TableRow key={claim.id} className="hover:bg-slate-50/80">
+                    <TableCell className="font-mono font-bold text-blue-900 py-3.5">{claim.id}</TableCell>
+                    <TableCell className="font-semibold text-slate-900 py-3.5">{claim.worker}</TableCell>
+                    <TableCell className="text-slate-800 py-3.5">{claim.item}</TableCell>
+                    <TableCell className="text-emerald-700 font-bold py-3.5">{claim.cost} PTS</TableCell>
+                    <TableCell className="py-3.5">
+                      <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                        claim.status === "Approved" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                        claim.status === "Rejected" ? "bg-red-50 text-red-700 border-red-200" :
+                        "bg-amber-50 text-amber-700 border-amber-200"
+                      }`}>
+                        {claim.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-3.5 text-right">
+                      {claim.status === "Pending" ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <Button size="sm" onClick={() => handleApproveWorker(claim.id)} className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg">
+                            <Check className="h-3.5 w-3.5 mr-1" /> Approve
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => handleRejectWorker(claim.id)} className="h-7 text-xs border-slate-200 text-red-600 hover:bg-red-50 rounded-lg">
+                            <X className="h-3.5 w-3.5 mr-1" /> Reject
+                          </Button>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 italic">Processed</span>
+                      )}
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {workerClaims
-                    .filter(w => w.worker.toLowerCase().includes(searchWorker.toLowerCase()))
-                    .map(claim => (
-                      <TableRow key={claim.id} className="hover:bg-gray-50/30 border-b">
-                        <TableCell className="font-mono text-xs font-semibold">{claim.id}</TableCell>
-                        <TableCell className="font-medium text-gray-700 text-xs">{claim.worker}</TableCell>
-                        <TableCell>
-                          <span className="bg-purple-50 text-purple-800 border border-purple-100 text-[10px] px-2.5 py-0.5 rounded-full font-bold">
-                            {claim.item}
-                          </span>
-                        </TableCell>
-                        <TableCell className="font-bold text-xs text-purple-900">{claim.cost} pts</TableCell>
-                        <TableCell className="text-gray-500 text-xs">{claim.date}</TableCell>
-                        <TableCell>
-                          <Badge className={`text-[10px] font-bold border ${borderClass(claim.status)}`}>
-                            {claim.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {claim.status === "Pending" ? (
-                            <div className="flex justify-end gap-1.5">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 text-xs border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
-                                onClick={() => handleApproveWorker(claim.id)}
-                              >
-                                <Check className="h-3.5 w-3.5 mr-1" />
-                                Approve
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 text-xs border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
-                                onClick={() => handleRejectWorker(claim.id)}
-                              >
-                                <X className="h-3.5 w-3.5 mr-1" />
-                                Decline
-                              </Button>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-gray-400 italic font-medium">Approved</span>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Leaderboards Tab */}
-        <TabsContent value="leaderboards" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Citizen Leaderboard */}
-          <Card className="shadow-lg border-gray-200">
-            <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b py-4">
-              <CardTitle className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
-                <Award className="h-4.5 w-4.5 text-emerald-600 animate-bounce" />
-                Citizen Eco-Leaderboard
-              </CardTitle>
-              <CardDescription className="text-xs text-gray-500">Active citizens driving community improvements and saving city scores.</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-3.5">
-                {citizenLeaderboard.map((user, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 border border-gray-150 rounded-xl hover:shadow-md transition-all duration-200">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-7 h-7 rounded-full bg-gradient-to-tr ${user.color} flex items-center justify-center text-white font-extrabold text-xs shadow`}>
-                        {idx + 1}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-xs text-gray-800">{user.name}</h4>
-                        <p className="text-[9px] text-emerald-700 font-extrabold bg-emerald-100 border border-emerald-200/50 px-1.5 py-0.5 rounded w-max mt-1">
-                          {user.badge}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-extrabold text-xs text-slate-900">{user.points} pts</p>
-                      <p className="text-[9px] text-gray-500 mt-0.5">{user.reports} reports submitted</p>
-                    </div>
-                  </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Worker Leaderboard */}
-          <Card className="shadow-lg border-gray-200">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b py-4">
-              <CardTitle className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
-                <UserCheck className="h-4.5 w-4.5 text-indigo-600" />
-                Field Force Performance Board
-              </CardTitle>
-              <CardDescription className="text-xs text-gray-500">Outstanding field workers with highest verified task completion ratings.</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-3.5">
-                {workerLeaderboard.map((worker, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 border border-gray-150 rounded-xl hover:shadow-md transition-all duration-200">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-7 h-7 rounded-full bg-gradient-to-tr ${worker.color} flex items-center justify-center text-white font-extrabold text-xs shadow`}>
-                        {idx + 1}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-xs text-gray-800">{worker.name}</h4>
-                        <p className="text-[9px] text-indigo-700 font-extrabold bg-indigo-100 border border-indigo-200/50 px-1.5 py-0.5 rounded w-max mt-1">
-                          {worker.badge}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-extrabold text-xs text-slate-900">{worker.points} pts</p>
-                      <p className="text-[9px] text-gray-500 mt-0.5">{worker.completed} tasks • Rating: {worker.rating}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Analytics Tab */}
-        <TabsContent value="analytics" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="shadow-lg border-gray-200 lg:col-span-2">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
-              <CardTitle className="text-sm font-bold text-gray-800">Point Allocation Trends</CardTitle>
-              <CardDescription className="text-xs text-gray-500">Weekly comparison of points issued for reporting vs redeemed for vouchers.</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={pointsTrend}>
-                  <defs>
-                    <linearGradient id="colorIssued" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorRedeemed" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.15}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="week" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: "11px" }} />
-                  <Area type="monotone" dataKey="issued" stroke="#3b82f6" fillOpacity={1} fill="url(#colorIssued)" strokeWidth={2.5} name="Points Issued" />
-                  <Area type="monotone" dataKey="redeemed" stroke="#10b981" fillOpacity={1} fill="url(#colorRedeemed)" strokeWidth={2.5} name="Points Redeemed" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-lg border-gray-200">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b">
-              <CardTitle className="text-sm font-bold text-gray-800">Top Redeemed Items</CardTitle>
-              <CardDescription className="text-xs text-gray-500">Cumulative count of vouchers claimed by citizens and workers.</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={popularItems} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis type="number" className="text-xs" />
-                  <YAxis dataKey="name" type="category" width={80} className="text-xs font-semibold" />
-                  <Tooltip />
-                  <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                    {popularItems.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
+              </TableBody>
+            </Table>
           </Card>
         </TabsContent>
       </Tabs>

@@ -6,240 +6,214 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Building2, Lock, Mail, Eye, EyeOff, ShieldCheck, Users, User, Globe } from "lucide-react";
 
 interface LoginPageProps {
-  onLogin: (role: "officer" | "worker") => void;
+  onLogin: (role: "officer" | "worker" | "citizen") => void;
 }
 
 export function LoginPage({ onLogin }: LoginPageProps) {
-  const [role, setRole] = useState<"officer" | "worker">("officer");
+  const [role, setRole] = useState<"officer" | "worker" | "citizen">("officer");
   const [email, setEmail] = useState("admin@civicconnect.gov");
   const [password, setPassword] = useState("admin123");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const selectRole = (newRole: "officer" | "worker") => {
+  const selectRole = (newRole: "officer" | "worker" | "citizen") => {
     setRole(newRole);
     if (newRole === "officer") {
       setEmail("admin@civicconnect.gov");
       setPassword("admin123");
-    } else {
+    } else if (newRole === "worker") {
       setEmail("worker@civicconnect.gov");
       setPassword("worker123");
+    } else {
+      setEmail("citizen@civicconnect.gov");
+      setPassword("citizen123");
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       onLogin(role);
-    }, 1000);
+    }, 600);
   };
 
   return (
-    <div className="min-h-screen w-full flex">
-      {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 p-12 flex-col justify-between relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
+    <div className="min-h-screen w-full flex bg-slate-100">
+      {/* Left Side - Civic Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-slate-900 p-12 flex-col justify-between relative overflow-hidden">
+        {/* Subtle background overlay */}
+        <div className="absolute inset-0 bg-blue-950/40 backdrop-blur-3xl"></div>
         
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-12">
-            <div className="bg-white/10 backdrop-blur-sm p-3 rounded-xl">
-              <Building2 className="h-8 w-8 text-white" />
+            <div className="bg-blue-600 p-3 rounded-xl shadow-md">
+              <Building2 className="h-7 w-7 text-white" />
             </div>
             <div>
-              <h1 className="text-white text-2xl tracking-wide">Civic Connect</h1>
-              <p className="text-blue-200 text-sm">Smart City Platform</p>
+              <h1 className="text-white font-bold text-xl tracking-tight">CivicConnect</h1>
+              <p className="text-slate-400 text-xs font-medium">Smart City Digital Services Platform</p>
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-8 max-w-lg">
             <div>
-              <h2 className="text-white text-4xl mb-4">
-                Smart City Civic
+              <h2 className="text-white text-3xl font-bold tracking-tight mb-3 leading-tight">
+                Municipal Operations &
                 <br />
-                <span className="text-blue-300">Management Hub</span>
+                <span className="text-blue-400">Citizen Services Portal</span>
               </h2>
-              <p className="text-blue-100 text-lg">
-                Coordinating officers, field workers, and citizens for clean, sustainable, and rapid urban responses.
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Integrated civic administration, automated AI issue classification, field worker dispatching, and public complaint tracking.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-8">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="text-3xl text-white mb-1">2,489</div>
-                <div className="text-blue-200 text-sm">Dustbins Monitored</div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="bg-slate-800/80 rounded-xl p-4 border border-slate-700/60 shadow-sm">
+                <div className="text-2xl font-bold text-white mb-0.5">2,489</div>
+                <div className="text-slate-400 text-xs">IoT Dustbins Monitored</div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="text-3xl text-white mb-1">98.2%</div>
-                <div className="text-blue-200 text-sm">AI Verification Accuracy</div>
+              <div className="bg-slate-800/80 rounded-xl p-4 border border-slate-700/60 shadow-sm">
+                <div className="text-2xl font-bold text-white mb-0.5">98.2%</div>
+                <div className="text-slate-400 text-xs">AI Image Verification</div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="text-3xl text-white mb-1">15 Mins</div>
-                <div className="text-blue-200 text-sm">Avg Emergency Response</div>
+              <div className="bg-slate-800/80 rounded-xl p-4 border border-slate-700/60 shadow-sm">
+                <div className="text-2xl font-bold text-white mb-0.5">15 Mins</div>
+                <div className="text-slate-400 text-xs">Avg Emergency Dispatch</div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="text-3xl text-white mb-1">86</div>
-                <div className="text-blue-200 text-sm">Active Sanitation Workers</div>
+              <div className="bg-slate-800/80 rounded-xl p-4 border border-slate-700/60 shadow-sm">
+                <div className="text-2xl font-bold text-white mb-0.5">86</div>
+                <div className="text-slate-400 text-xs">Active Field Crews</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 text-blue-200 text-sm">
-            <ShieldCheck className="h-5 w-5" />
-            <span>Secure Role-Based Authentication System</span>
+        <div className="relative z-10 border-t border-slate-800 pt-4">
+          <div className="flex items-center gap-2 text-slate-400 text-xs">
+            <ShieldCheck className="h-4 w-4 text-blue-400" />
+            <span>Government Grade Encryption & Access Control System</span>
           </div>
         </div>
       </div>
 
-      {/* Right Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
-        <div className="w-full max-w-md">
-          {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-3 rounded-xl shadow-lg">
-              <Building2 className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-gray-900 text-xl">Civic Connect</h1>
-              <p className="text-gray-600 text-sm">Smart City Platform</p>
-            </div>
+      {/* Right Side - Login Card */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12">
+        <div className="w-full max-w-md space-y-6">
+          
+          <div className="text-center space-y-1.5">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Sign in to CivicConnect</h2>
+            <p className="text-xs text-slate-500">Select your authorization role to enter the workspace</p>
           </div>
 
-          <Card className="shadow-xl border-gray-200">
-            <CardHeader className="space-y-1 bg-gradient-to-r from-gray-50 to-blue-50 border-b">
-              <CardTitle className="text-2xl text-center">Select Your Portal</CardTitle>
-              <p className="text-sm text-gray-600 text-center">
-                Choose a role to access the corresponding workspace
-              </p>
+          <Card className="bg-white border-slate-200 shadow-sm rounded-2xl overflow-hidden">
+            <CardHeader className="p-6 pb-2 border-b border-slate-100 bg-slate-50/50">
+              <CardTitle className="text-xs font-semibold uppercase text-slate-500 tracking-wider text-center">
+                Select Workspace Portal
+              </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
-              {/* Role Selectors */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
+            <CardContent className="p-6 space-y-6">
+              
+              {/* Role Selectors - 3 Columns */}
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => selectRole("officer")}
-                  className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 text-center transition-all ${
+                  className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all ${
                     role === "officer"
-                      ? "border-blue-600 bg-blue-50 text-blue-900 shadow-md"
-                      : "border-gray-200 hover:border-gray-300 text-gray-600 bg-white"
+                      ? "border-blue-600 bg-blue-50/60 text-blue-950 font-semibold shadow-sm"
+                      : "border-slate-200 hover:border-slate-300 text-slate-600 bg-white"
                   }`}
                 >
-                  <Building2 className={`h-5 w-5 mb-1.5 ${role === "officer" ? "text-blue-600" : "text-gray-400"}`} />
-                  <span className="text-xs font-semibold">Admin/Officer</span>
+                  <Building2 className={`h-5 w-5 mb-1.5 ${role === "officer" ? "text-blue-600" : "text-slate-400"}`} />
+                  <span className="text-xs">Municipal Officer</span>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => selectRole("worker")}
-                  className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 text-center transition-all ${
+                  className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all ${
                     role === "worker"
-                      ? "border-blue-600 bg-blue-50 text-blue-900 shadow-md"
-                      : "border-gray-200 hover:border-gray-300 text-gray-600 bg-white"
+                      ? "border-blue-600 bg-blue-50/60 text-blue-950 font-semibold shadow-sm"
+                      : "border-slate-200 hover:border-slate-300 text-slate-600 bg-white"
                   }`}
                 >
-                  <Users className={`h-5 w-5 mb-1.5 ${role === "worker" ? "text-blue-600" : "text-gray-400"}`} />
-                  <span className="text-xs font-semibold">Field Worker</span>
+                  <Users className={`h-5 w-5 mb-1.5 ${role === "worker" ? "text-blue-600" : "text-slate-400"}`} />
+                  <span className="text-xs">Field Worker</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => selectRole("citizen")}
+                  className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all ${
+                    role === "citizen"
+                      ? "border-blue-600 bg-blue-50/60 text-blue-950 font-semibold shadow-sm"
+                      : "border-slate-200 hover:border-slate-300 text-slate-600 bg-white"
+                  }`}
+                >
+                  <Globe className={`h-5 w-5 mb-1.5 ${role === "citizen" ? "text-blue-600" : "text-slate-400"}`} />
+                  <span className="text-xs">Citizen Portal</span>
                 </button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-xs text-slate-700 font-medium">Email Address</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <Input
                       id="email"
                       type="email"
-                      placeholder="email@civicconnect.gov"
+                      placeholder="user@civicconnect.gov"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-11 border-gray-300 focus:border-blue-500"
+                      className="pl-9 h-10 border-slate-200 focus:border-blue-600 text-xs rounded-xl"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="password" className="text-xs text-slate-700 font-medium">Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 h-11 border-gray-300 focus:border-blue-500"
+                      className="pl-9 pr-9 h-10 border-slate-200 focus:border-blue-600 text-xs rounded-xl"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                     >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      defaultChecked
-                    />
-                    <span className="text-gray-600">Remember me</span>
-                  </label>
-                  <button
-                    type="button"
-                    className="text-blue-600 hover:text-blue-700 transition-colors"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-
                 <Button
                   type="submit"
-                  className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all font-semibold"
                   disabled={isLoading}
+                  className="w-full bg-blue-900 hover:bg-blue-950 text-white font-medium h-10 rounded-xl text-xs transition-colors shadow-sm mt-2"
                 >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Connecting to Portal...</span>
-                    </div>
-                  ) : (
-                    `Access ${role === "officer" ? "Admin" : role === "worker" ? "Worker" : "Citizen"} Dashboard`
-                  )}
+                  {isLoading ? "Authenticating Credentials..." : `Sign in to ${role === "officer" ? "Admin Dashboard" : role === "worker" ? "Field Portal" : "Citizen Services"}`}
                 </Button>
               </form>
 
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="flex items-center justify-center gap-2 text-sm text-gray-600 bg-gray-50 py-2 rounded-lg border border-gray-100">
-                  <ShieldCheck className="h-4 w-4 text-green-600 animate-pulse" />
-                  <span>Authorized access only</span>
-                </div>
-              </div>
             </CardContent>
           </Card>
 
-          <p className="text-center text-sm text-gray-600 mt-6">
-            Need credentials? Switch roles above to auto-fill them.
+          <p className="text-center text-xs text-slate-500">
+            For technical support or credentials reset, contact Municipal IT Helpdesk.
           </p>
+
         </div>
       </div>
     </div>
   );
 }
-
