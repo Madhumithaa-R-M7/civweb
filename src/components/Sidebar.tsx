@@ -8,7 +8,6 @@ import {
   Settings,
   Building2,
   Award,
-  HelpCircle,
 } from "lucide-react";
 import { cn } from "./ui/utils";
 
@@ -30,22 +29,20 @@ const menuItems = [
 
 export function Sidebar({ currentView, onViewChange }: SidebarProps) {
   return (
-    <aside className="w-[250px] bg-slate-900 h-full flex flex-col border-r border-slate-800 shrink-0 select-none">
-      {/* Brand Header */}
-      <div className="h-16 flex items-center px-5 border-b border-slate-800/80">
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-600 p-2 rounded-xl shadow-sm">
-            <Building2 className="h-5 w-5 text-white" />
+    <div className="w-64 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 h-full flex flex-col shadow-2xl">
+      <div className="h-16 flex items-center px-6 border-b border-white/10">
+        <div className="flex items-center gap-2">
+          <div className="bg-white/10 backdrop-blur-sm p-2 rounded-lg">
+            <Building2 className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-white font-bold text-base tracking-tight leading-none">CivicConnect</h1>
-            <p className="text-slate-400 text-[11px] font-medium mt-1">Admin Portal</p>
+            <span className="text-white text-lg tracking-wide">Civic Connect</span>
+            <p className="text-blue-200 text-xs">Admin Portal</p>
           </div>
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-6">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentView === item.id;
@@ -55,37 +52,33 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
               key={item.id}
               onClick={() => onViewChange(item.id)}
               className={cn(
-                "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-colors text-left font-medium",
+                "w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200 group",
                 isActive
-                  ? "bg-white text-slate-950 font-semibold shadow-sm"
-                  : "text-slate-300 hover:bg-slate-800/70 hover:text-white"
+                  ? "bg-white text-blue-900 shadow-lg scale-105"
+                  : "text-blue-100 hover:bg-white/10 hover:text-white hover:translate-x-1"
               )}
             >
               <Icon className={cn(
-                "h-4 w-4 shrink-0 transition-colors",
-                isActive ? "text-blue-600" : "text-slate-400"
+                "h-5 w-5 transition-all",
+                isActive ? "text-blue-600" : "group-hover:scale-110"
               )} />
-              <span>{item.label}</span>
+              <span className="text-sm">{item.label}</span>
             </button>
           );
         })}
       </nav>
 
-      {/* Help & Support Footer */}
-      <div className="p-4 border-t border-slate-800/80">
-        <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3.5 space-y-2">
-          <div className="flex items-center gap-2 text-slate-200 text-xs font-semibold">
-            <HelpCircle className="h-4 w-4 text-blue-400" />
-            <span>Help & Support</span>
-          </div>
-          <p className="text-slate-400 text-[11px] leading-relaxed">
-            Access documentation or submit system tickets to IT.
+      <div className="p-4 border-t border-white/10">
+        <div className="bg-gradient-to-br from-blue-700 to-indigo-700 rounded-xl p-4 shadow-lg">
+          <p className="text-white text-sm mb-2">Need Help?</p>
+          <p className="text-blue-100 text-xs mb-3">
+            Check our documentation or contact support
           </p>
-          <button className="w-full bg-slate-700 hover:bg-slate-600 text-white text-xs font-medium py-1.5 rounded-lg transition-colors mt-1">
-            Contact Support
+          <button className="w-full bg-white text-blue-900 text-sm py-2 rounded-lg hover:bg-blue-50 transition-colors shadow-md">
+            Get Support
           </button>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

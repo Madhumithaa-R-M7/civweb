@@ -15,19 +15,13 @@ import {
   Play,
   Upload,
   QrCode,
-  Volume2,
   WifiOff,
   Wifi,
   Sparkles,
   Award,
-  Bell,
-  ChevronRight,
-  TrendingUp,
-  CloudLightning,
   AlertTriangle,
   Gift,
   ShieldCheck,
-  Send,
   PlusCircle,
   UserCheck,
   XCircle,
@@ -36,7 +30,8 @@ import {
   Users,
   Activity,
   Navigation,
-  CheckSquare,
+  FileText,
+  Filter,
 } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 
@@ -116,6 +111,7 @@ interface WorkerPortalProps {
 export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalProps) {
   const [activeTab, setActiveTab] = useState<"tasks" | "attendance" | "welfare" | "leaves">("tasks");
   const [tasks, setTasks] = useState<WorkerTask[]>(initialTasks);
+  const [taskFilter, setTaskFilter] = useState<string>("all");
   const [points, setPoints] = useState(450);
   const [offlineMode, setOfflineMode] = useState(false);
   const [selectedTask, setSelectedTask] = useState<WorkerTask | null>(null);
@@ -169,7 +165,7 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
   // Attendance states
   const [isCheckedIn, setIsCheckedIn] = useState(true);
   const [checkInTime, setCheckInTime] = useState<string | null>("08:30 AM");
-  const [gpsLocation] = useState("13.0827° N, 80.2707° E (Central Hub)");
+  const [gpsLocation] = useState("13.0827° N, 80.2707° E (Central Municipal Depot)");
 
   // Leaves state
   const [leaves, setLeaves] = useState<LeaveRequest[]>([
@@ -241,7 +237,7 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
 
   const handleApproveLeave = (id: string) => {
     setLeaves(leaves.map(l => l.id === id ? { ...l, status: "Approved" } : l));
-    alert("Leave Application Approved by Municipal Officer.");
+    alert("Leave Application Approved.");
   };
 
   const handleRejectLeave = (id: string) => {
@@ -269,9 +265,9 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
       setTasks(tasks.map(t => t.id === selectedTask.id ? { ...t, qrVerified: true } : t));
       setQrCodeInput("");
       setQrModalOpen(false);
-      alert("Area Verified Successfully! Site QR Code matched.");
+      alert("Area Verified! Site QR Code matched.");
     } else {
-      alert("Invalid QR Code! Please verify code on site pole/bin.");
+      alert("Invalid QR Code! Please verify code on site.");
     }
   };
 
@@ -294,18 +290,18 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
               aiScore: randomScore,
               afterPhoto: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=500&h=300&fit=crop"
             } : t));
-          }, 400);
+          }, 350);
           return 100;
         }
         return prev + 30;
       });
-    }, 250);
+    }, 200);
   };
 
   const handleCompleteTask = (task: WorkerTask) => {
     setTasks(tasks.map(t => t.id === task.id ? { ...t, status: "Completed" } : t));
     setPoints(points + 50);
-    alert("Task Marked as Completed! 50 Points added to wallet.");
+    alert("Task Completed! 50 Points added to wallet.");
   };
 
   const triggerSos = () => {
@@ -313,17 +309,23 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
     setTimeout(() => {
       alert("EMERGENCY SIGNAL BROADCAST! Location: " + gpsLocation + ". Control Room Dispatched.");
       setSosTriggered(false);
-    }, 1800);
+    }, 1500);
   };
 
+  const filteredTasks = tasks.filter(t => {
+    if (taskFilter === "active") return t.status !== "Completed";
+    if (taskFilter === "completed") return t.status === "Completed";
+    return true;
+  });
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-blue-600 selection:text-white pb-20">
+    <div className="min-h-screen bg-slate-50/70 text-slate-800 font-sans pb-20">
       
       {/* Sleek Top Navigation Header */}
-      <header className="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-30 shadow-2xl backdrop-blur-xl">
+      <header className="bg-slate-900 text-white shadow-xl sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-3 rounded-2xl shadow-lg shadow-blue-500/20">
+            <div className="bg-blue-600 p-2.5 rounded-xl shadow-md">
               <Briefcase className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -332,17 +334,17 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
                   {isOfficerView ? "Field Operations Management" : "Field Worker Portal"}
                 </h1>
                 {isOfficerView ? (
-                  <span className="bg-amber-500/15 text-amber-400 border border-amber-500/30 text-[11px] font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                    <ShieldCheck className="h-3 w-3" /> Officer Control Mode
+                  <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <ShieldCheck className="h-3.5 w-3.5" /> Officer Admin View
                   </span>
                 ) : (
-                  <span className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                    <Activity className="h-3 w-3" /> Active Field Duty
+                  <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <Activity className="h-3.5 w-3.5" /> Active Field Duty
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                {isOfficerView ? "Dispatch tasks, oversee resolution photos, and manage worker leave requests" : "Task dispatch, QR verification, AI inspection, and welfare rewards"}
+              <p className="text-xs text-slate-300 mt-0.5">
+                {isOfficerView ? "Dispatch tasks, monitor AI completion inspection, and approve worker leaves" : "Field task execution, QR site verification, and welfare points"}
               </p>
             </div>
           </div>
@@ -351,35 +353,35 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
             {isOfficerView && (
               <Button
                 onClick={() => setDispatchModalOpen(true)}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-600/25 gap-2 text-xs font-semibold px-4 py-2 rounded-xl"
+                className="bg-blue-600 hover:bg-blue-500 text-white shadow-md gap-2 text-xs font-semibold px-4 py-2 rounded-lg"
               >
                 <PlusCircle className="h-4 w-4" />
-                Dispatch New Task
+                Dispatch Task
               </Button>
             )}
 
             <button
               onClick={() => setOfflineMode(!offlineMode)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                 offlineMode
-                  ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
-                  : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
+                  ? "bg-amber-500/20 text-amber-200 border-amber-500/40"
+                  : "bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700"
               }`}
             >
               {offlineMode ? <WifiOff className="h-3.5 w-3.5 text-amber-400" /> : <Wifi className="h-3.5 w-3.5 text-emerald-400" />}
               {offlineMode ? "Offline" : "Online Sync"}
             </button>
 
-            <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-3.5 py-2 rounded-xl">
+            <div className="flex items-center gap-1.5 bg-amber-500/15 border border-amber-500/30 px-3 py-1.5 rounded-lg">
               <Award className="h-4 w-4 text-amber-400" />
-              <span className="text-xs font-bold text-amber-300 tracking-wide">{points} PTS</span>
+              <span className="text-xs font-bold text-amber-300">{points} PTS</span>
             </div>
 
             <Button
               variant="outline"
               size="sm"
               onClick={onLogout}
-              className="border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white rounded-xl text-xs"
+              className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white text-xs rounded-lg"
             >
               {isOfficerView ? "Exit Worker View" : "Sign Out"}
             </Button>
@@ -387,7 +389,7 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
         </div>
 
         {/* Tab Navigation */}
-        <div className="max-w-7xl mx-auto px-6 flex gap-3 overflow-x-auto pt-1 border-t border-slate-800/60">
+        <div className="max-w-7xl mx-auto px-6 flex gap-2 overflow-x-auto border-t border-slate-800/80 pt-1">
           {[
             { id: "tasks", label: `Field Tasks (${tasks.filter(t => t.status !== "Completed").length})`, icon: Briefcase },
             { id: "attendance", label: "Attendance & GPS", icon: MapPin },
@@ -400,13 +402,13 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+                className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
                   isActive
-                    ? "border-blue-500 text-blue-400 bg-blue-500/10 rounded-t-xl"
-                    : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 rounded-t-xl"
+                    ? "border-blue-400 text-blue-400 bg-slate-800/70 rounded-t-lg"
+                    : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 rounded-t-lg"
                 }`}
               >
-                <Icon className={`h-4 w-4 ${isActive ? "text-blue-400" : "text-slate-500"}`} />
+                <Icon className={`h-4 w-4 ${isActive ? "text-blue-400" : "text-slate-400"}`} />
                 {tab.label}
               </button>
             );
@@ -415,164 +417,190 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
       </header>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-6 pt-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-6 pt-6 space-y-6">
 
-        {/* Top Metric Stats Cards - 4 Grid Cards */}
+        {/* Top KPI Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           
-          {/* Card 1: Attendance */}
-          <Card className="bg-slate-900/80 border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+          {/* KPI 1: Attendance */}
+          <div className="bg-white border border-slate-200/80 p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Attendance Status</span>
-              <div className="bg-emerald-500/10 p-2 rounded-xl">
-                <UserCheck className="h-4 w-4 text-emerald-400" />
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Duty Attendance</span>
+              <div className="bg-emerald-50 p-2 rounded-lg">
+                <UserCheck className="h-4 w-4 text-emerald-600" />
               </div>
             </div>
-            <div className="mt-4 flex items-baseline justify-between">
+            <div className="mt-3 flex items-baseline justify-between">
               <div>
-                <span className="text-2xl font-bold text-white">{checkInTime || "Off Duty"}</span>
-                <p className="text-[11px] text-slate-400 mt-0.5">{isCheckedIn ? "Geofenced GPS Locked" : "Not Checked In"}</p>
+                <span className="text-xl font-bold text-slate-900">{checkInTime || "Off Duty"}</span>
+                <p className="text-[11px] text-slate-500 mt-0.5">{isCheckedIn ? "Geofence Checked In" : "Checked Out"}</p>
               </div>
-              <Button size="sm" onClick={handleCheckIn} className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${isCheckedIn ? "bg-red-600/80 hover:bg-red-600 text-white" : "bg-emerald-600 hover:bg-emerald-500 text-white"}`}>
+              <Button size="sm" onClick={handleCheckIn} className={`text-xs px-3 py-1 font-semibold rounded-md ${isCheckedIn ? "bg-red-600 hover:bg-red-500 text-white" : "bg-emerald-600 hover:bg-emerald-500 text-white"}`}>
                 {isCheckedIn ? "Check Out" : "Check In"}
               </Button>
             </div>
-          </Card>
+          </div>
 
-          {/* Card 2: Active Tasks */}
-          <Card className="bg-slate-900/80 border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+          {/* KPI 2: Active Tasks */}
+          <div className="bg-white border border-slate-200/80 p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Field Tasks</span>
-              <div className="bg-blue-500/10 p-2 rounded-xl">
-                <Briefcase className="h-4 w-4 text-blue-400" />
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Field Tasks</span>
+              <div className="bg-blue-50 p-2 rounded-lg">
+                <Briefcase className="h-4 w-4 text-blue-600" />
               </div>
             </div>
-            <div className="mt-4">
+            <div className="mt-3">
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-white">{tasks.filter(t => t.status !== "Completed").length}</span>
-                <span className="text-xs text-slate-400">Assigned Tasks</span>
+                <span className="text-xl font-bold text-slate-900">{tasks.filter(t => t.status !== "Completed").length}</span>
+                <span className="text-xs text-slate-500">Tasks Pending</span>
               </div>
-              <p className="text-[11px] text-red-400 mt-1 font-medium flex items-center gap-1">
-                <AlertTriangle className="h-3 w-3" /> {tasks.filter(t => t.priority === "High" && t.status !== "Completed").length} High Priority Pending
+              <p className="text-[11px] text-red-600 font-semibold mt-1 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" /> {tasks.filter(t => t.priority === "High" && t.status !== "Completed").length} High Priority
               </p>
             </div>
-          </Card>
+          </div>
 
-          {/* Card 3: Pending Leaves */}
-          <Card className="bg-slate-900/80 border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
+          {/* KPI 3: Leaves */}
+          <div className="bg-white border border-slate-200/80 p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Leave Applications</span>
-              <div className="bg-amber-500/10 p-2 rounded-xl">
-                <Calendar className="h-4 w-4 text-amber-400" />
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Leave Applications</span>
+              <div className="bg-amber-50 p-2 rounded-lg">
+                <Calendar className="h-4 w-4 text-amber-600" />
               </div>
             </div>
-            <div className="mt-4">
+            <div className="mt-3">
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-white">{leaves.filter(l => l.status === "Pending").length}</span>
-                <span className="text-xs text-slate-400">Pending Approvals</span>
+                <span className="text-xl font-bold text-slate-900">{leaves.filter(l => l.status === "Pending").length}</span>
+                <span className="text-xs text-slate-500">Pending Approvals</span>
               </div>
-              <p className="text-[11px] text-amber-400 mt-1">Requires Officer Signature</p>
+              <p className="text-[11px] text-amber-600 font-medium mt-1">Requires Officer Review</p>
             </div>
-          </Card>
+          </div>
 
-          {/* Card 4: Emergency SOS */}
-          <Card className="bg-gradient-to-br from-red-950/40 via-slate-900 to-slate-900 border-red-900/30 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
+          {/* KPI 4: Emergency SOS */}
+          <div className="bg-red-50/70 border border-red-200 p-5 rounded-xl shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-red-300 uppercase tracking-wider flex items-center gap-1.5">
-                <AlertOctagon className="h-4 w-4 text-red-400 animate-pulse" /> Emergency SOS
+              <span className="text-xs font-bold text-red-700 uppercase tracking-wider flex items-center gap-1.5">
+                <AlertOctagon className="h-4 w-4 text-red-600 animate-pulse" /> Emergency SOS
               </span>
-              <div className="bg-red-500/10 p-2 rounded-xl">
-                <Navigation className="h-4 w-4 text-red-400" />
+              <div className="bg-red-100 p-2 rounded-lg">
+                <Navigation className="h-4 w-4 text-red-600" />
               </div>
             </div>
             <Button
               onClick={triggerSos}
               disabled={sosTriggered}
-              className="mt-4 w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold py-2 rounded-xl shadow-lg shadow-red-600/25 text-xs tracking-wider"
+              className="mt-3 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 rounded-lg shadow-sm text-xs"
             >
-              {sosTriggered ? "DISPATCHING SIGNAL..." : "TRIGGER SOS BROADCAST"}
+              {sosTriggered ? "DISPATCHING SOS..." : "TRIGGER EMERGENCY SOS"}
             </Button>
-          </Card>
+          </div>
         </div>
 
         {/* TAB 1: FIELD TASKS */}
         {activeTab === "tasks" && (
           <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+            
+            {/* Filter Bar & Header */}
+            <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-white tracking-tight">Active Field Work Orders</h2>
-                <p className="text-xs text-slate-400 mt-0.5">Perform repairs, scan site QR tags, and trigger AI vision inspection for completion points</p>
+                <h2 className="text-base font-bold text-slate-900 tracking-tight">Work Orders & Field Tasks</h2>
+                <p className="text-xs text-slate-500">Complete assigned tasks, verify site QR tags, and run AI inspection</p>
               </div>
-              {isOfficerView && (
-                <Button onClick={() => setDispatchModalOpen(true)} size="sm" className="bg-blue-600 hover:bg-blue-500 text-white gap-1.5 text-xs rounded-xl">
-                  <PlusCircle className="h-4 w-4" /> Dispatch Field Task
-                </Button>
-              )}
+
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200">
+                  <Filter className="h-3.5 w-3.5 text-slate-500 ml-1.5" />
+                  {[
+                    { id: "all", label: "All Tasks" },
+                    { id: "active", label: "Active" },
+                    { id: "completed", label: "Completed" },
+                  ].map(f => (
+                    <button
+                      key={f.id}
+                      onClick={() => setTaskFilter(f.id)}
+                      className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                        taskFilter === f.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+
+                {isOfficerView && (
+                  <Button onClick={() => setDispatchModalOpen(true)} size="sm" className="bg-blue-600 hover:bg-blue-500 text-white text-xs gap-1.5 rounded-lg">
+                    <PlusCircle className="h-4 w-4" /> Dispatch Task
+                  </Button>
+                )}
+              </div>
             </div>
 
+            {/* Task Cards Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {tasks.map((task) => (
-                <Card key={task.id} className="bg-slate-900/80 border-slate-800 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl hover:border-slate-700 transition-all flex flex-col justify-between">
-                  <div className="p-6 space-y-5">
-                    
-                    {/* Header line */}
+              {filteredTasks.map((task) => (
+                <div key={task.id} className="bg-white border border-slate-200/90 rounded-xl shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between overflow-hidden">
+                  
+                  <div className="p-5 space-y-4">
+                    {/* Top Row Header */}
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-mono font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">{task.id}</span>
-                          <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
-                            task.priority === "High" ? "bg-red-500/15 text-red-300 border-red-500/30" : "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                          <span className="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">{task.id}</span>
+                          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                            task.priority === "High" ? "bg-red-50 text-red-700 border border-red-200" : "bg-amber-50 text-amber-700 border border-amber-200"
                           }`}>
                             {task.priority} Priority
                           </span>
-                          <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
-                            task.status === "Completed" ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" : "bg-blue-500/15 text-blue-300 border-blue-500/30"
+                          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                            task.status === "Completed" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-blue-50 text-blue-700 border border-blue-200"
                           }`}>
                             {task.status}
                           </span>
                         </div>
-                        <h3 className="text-base font-bold text-white mt-2">{task.category}</h3>
-                        <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-1">
-                          <MapPin className="h-3.5 w-3.5 text-blue-400 shrink-0" /> {task.location}
+
+                        <h3 className="text-base font-bold text-slate-900 mt-2">{task.category}</h3>
+                        <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
+                          <MapPin className="h-3.5 w-3.5 text-blue-600 shrink-0" /> {task.location}
                         </p>
                       </div>
 
                       {task.qrVerified ? (
-                        <span className="bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-semibold px-3 py-1 rounded-xl flex items-center gap-1.5 shrink-0">
-                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> QR Verified
+                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 shrink-0">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> QR Verified
                         </span>
                       ) : (
-                        <Button size="sm" variant="outline" onClick={() => handleQRVerify(task)} className="border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 text-xs gap-1.5 rounded-xl shrink-0">
-                          <QrCode className="h-3.5 w-3.5" /> Verify Site QR
+                        <Button size="sm" variant="outline" onClick={() => handleQRVerify(task)} className="border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 text-xs gap-1.5 rounded-lg shrink-0">
+                          <QrCode className="h-3.5 w-3.5" /> Verify QR
                         </Button>
                       )}
                     </div>
 
-                    {/* Description Box */}
-                    <div className="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                    {/* Task Description */}
+                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80 text-xs text-slate-700 leading-relaxed">
                       {task.description}
                     </div>
 
                     {task.assignedWorker && (
-                      <div className="flex items-center gap-2 text-xs text-slate-400">
-                        <Users className="h-3.5 w-3.5 text-indigo-400" />
-                        <span>Assigned Worker: <strong className="text-slate-200">{task.assignedWorker}</strong></span>
+                      <div className="flex items-center gap-2 text-xs text-slate-600">
+                        <Users className="h-3.5 w-3.5 text-indigo-600" />
+                        <span>Assigned Staff: <strong className="text-slate-900">{task.assignedWorker}</strong></span>
                       </div>
                     )}
 
-                    {/* Before & After Photo Comparison */}
+                    {/* Photos Grid */}
                     <div className="grid grid-cols-2 gap-3 pt-1">
                       <div>
-                        <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1.5 tracking-wider">Before Work</span>
-                        <ImageWithFallback src={task.beforePhoto} alt="Before" className="h-32 w-full object-cover rounded-xl border border-slate-800 shadow-md" />
+                        <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1 tracking-wider">Before Work</span>
+                        <ImageWithFallback src={task.beforePhoto} alt="Before" className="h-28 w-full object-cover rounded-lg border border-slate-200 shadow-inner" />
                       </div>
                       <div>
-                        <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1.5 tracking-wider">After Work (AI Inspected)</span>
+                        <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1 tracking-wider">After Work (AI Inspected)</span>
                         {task.afterPhoto ? (
-                          <ImageWithFallback src={task.afterPhoto} alt="After" className="h-32 w-full object-cover rounded-xl border border-emerald-500/40 shadow-md" />
+                          <ImageWithFallback src={task.afterPhoto} alt="After" className="h-28 w-full object-cover rounded-lg border border-emerald-300 shadow-inner" />
                         ) : (
-                          <div className="h-32 w-full bg-slate-950/80 rounded-xl border border-dashed border-slate-800 flex flex-col items-center justify-center text-slate-500 text-xs">
-                            <Upload className="h-6 w-6 mb-1 text-slate-600" /> Upload After Photo
+                          <div className="h-28 w-full bg-slate-50 rounded-lg border border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 text-xs">
+                            <Upload className="h-5 w-5 mb-1 text-slate-400" /> Upload After Photo
                           </div>
                         )}
                       </div>
@@ -580,24 +608,24 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
 
                     {/* AI Score Badge */}
                     {task.aiScore && (
-                      <div className="bg-emerald-950/30 border border-emerald-800/40 p-3 rounded-xl flex items-center justify-between">
-                        <span className="text-xs text-emerald-300 flex items-center gap-2 font-semibold">
-                          <Sparkles className="h-4 w-4 text-emerald-400" /> AI Verification Score: {task.aiScore}%
+                      <div className="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg flex items-center justify-between">
+                        <span className="text-xs text-emerald-800 flex items-center gap-1.5 font-bold">
+                          <Sparkles className="h-4 w-4 text-emerald-600" /> AI Verification Score: {task.aiScore}%
                         </span>
-                        <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                        <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">
                           Passed Inspection
                         </span>
                       </div>
                     )}
                   </div>
 
-                  {/* Card Footer Actions */}
-                  <div className="p-4 bg-slate-950/50 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
+                  {/* Card Action Footer */}
+                  <div className="p-4 bg-slate-50/80 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
                     <Button
                       size="sm"
                       onClick={() => startAiVerification(task)}
                       disabled={task.status === "Completed"}
-                      className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs gap-1.5 rounded-xl font-medium"
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs gap-1.5 rounded-lg font-semibold"
                     >
                       <Sparkles className="h-3.5 w-3.5" /> Run AI Inspection
                     </Button>
@@ -606,13 +634,13 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
                       <Button
                         size="sm"
                         onClick={() => handleCompleteTask(task)}
-                        className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs gap-1.5 rounded-xl font-semibold shadow-lg shadow-emerald-600/20"
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs gap-1.5 rounded-lg font-bold shadow-sm"
                       >
                         <CheckCircle2 className="h-3.5 w-3.5" /> Complete (+50 PTS)
                       </Button>
                     )}
                   </div>
-                </Card>
+                </div>
               ))}
             </div>
           </div>
@@ -620,60 +648,60 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
 
         {/* TAB 2: ATTENDANCE & GPS */}
         {activeTab === "attendance" && (
-          <Card className="bg-slate-900/80 border-slate-800 p-6 rounded-2xl shadow-2xl space-y-6">
+          <div className="bg-white border border-slate-200/90 rounded-xl p-6 shadow-sm space-y-6">
             <div>
-              <h2 className="text-lg font-bold text-white tracking-tight">Field GPS & Shift Verification Hub</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Real-time geofenced check-in tracking and duty logs</p>
+              <h2 className="text-base font-bold text-slate-900 tracking-tight">GPS Geofence & Attendance Hub</h2>
+              <p className="text-xs text-slate-500 mt-0.5">Real-time geofenced duty logs and shift tracking</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-5">
-                <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3 shadow-inner">
+              <div className="space-y-4">
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-400">Current GPS Coordinate Lock</span>
-                    <span className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-bold text-slate-600">Current GPS Coordinate Lock</span>
+                    <span className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                       Geofence Verified
                     </span>
                   </div>
-                  <p className="text-sm font-mono text-slate-200">{gpsLocation}</p>
+                  <p className="text-sm font-mono text-slate-800">{gpsLocation}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs text-slate-300">Shift Status Toggle</Label>
-                  <Button onClick={handleCheckIn} className={`w-full py-2.5 rounded-xl font-semibold ${isCheckedIn ? "bg-red-600 hover:bg-red-500 text-white" : "bg-emerald-600 hover:bg-emerald-500 text-white"}`}>
+                  <Label className="text-xs font-bold text-slate-700">Duty Shift Status</Label>
+                  <Button onClick={handleCheckIn} className={`w-full py-2 rounded-lg font-bold ${isCheckedIn ? "bg-red-600 hover:bg-red-500 text-white" : "bg-emerald-600 hover:bg-emerald-500 text-white"}`}>
                     {isCheckedIn ? "Check Out of Field Duty" : "Check In to Field Duty"}
                   </Button>
                 </div>
               </div>
 
-              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
-                <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Today's Verified Duty Logs</h3>
-                <div className="space-y-3 text-xs">
-                  <div className="flex items-center justify-between py-2 border-b border-slate-800">
-                    <span className="text-slate-400">Shift Check-in</span>
-                    <span className="text-emerald-400 font-mono font-semibold">08:30 AM (GPS Confirmed)</span>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Today's Verified Duty Logs</h3>
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex items-center justify-between py-2 border-b border-slate-200">
+                    <span className="text-slate-600">Shift Check-in</span>
+                    <span className="text-emerald-700 font-mono font-bold">08:30 AM (GPS Confirmed)</span>
                   </div>
-                  <div className="flex items-center justify-between py-2 border-b border-slate-800">
-                    <span className="text-slate-400">Site QR Match #1</span>
-                    <span className="text-blue-400 font-mono font-semibold">09:15 AM (Main St)</span>
+                  <div className="flex items-center justify-between py-2 border-b border-slate-200">
+                    <span className="text-slate-600">Site QR Match #1</span>
+                    <span className="text-blue-700 font-mono font-bold">09:15 AM (Main St)</span>
                   </div>
                   <div className="flex items-center justify-between py-2">
-                    <span className="text-slate-400">Current Status</span>
-                    <span className="text-emerald-400 font-bold">On Active Duty</span>
+                    <span className="text-slate-600">Current Status</span>
+                    <span className="text-emerald-700 font-bold">On Active Duty</span>
                   </div>
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
         )}
 
         {/* TAB 3: LEAVE MANAGEMENT */}
         {activeTab === "leaves" && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-bold text-white tracking-tight">Worker Leave & Duty Requests</h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                {isOfficerView ? "Review, approve, or reject field worker leave applications" : "Submit leave applications for officer approval"}
+              <h2 className="text-base font-bold text-slate-900 tracking-tight">Worker Leave & Duty Requests</h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {isOfficerView ? "Review and approve or reject field worker leave requests" : "Submit leave applications for officer approval"}
               </p>
             </div>
 
@@ -681,56 +709,56 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
               {/* Leaves List */}
               <div className="lg:col-span-2 space-y-4">
                 {leaves.map((leave) => (
-                  <Card key={leave.id} className="bg-slate-900/80 border-slate-800 p-5 rounded-2xl shadow-2xl flex flex-wrap items-center justify-between gap-4">
+                  <div key={leave.id} className="bg-white border border-slate-200/90 p-5 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">{leave.id}</span>
-                        <span className="text-sm font-bold text-white">{leave.workerName}</span>
-                        <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
-                          leave.status === "Approved" ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" :
-                          leave.status === "Rejected" ? "bg-red-500/15 text-red-300 border-red-500/30" :
-                          "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                        <span className="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">{leave.id}</span>
+                        <span className="text-sm font-bold text-slate-900">{leave.workerName}</span>
+                        <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                          leave.status === "Approved" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
+                          leave.status === "Rejected" ? "bg-red-50 text-red-700 border border-red-200" :
+                          "bg-amber-50 text-amber-700 border border-amber-200"
                         }`}>
                           {leave.status}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-300">{leave.type}: {leave.startDate} to {leave.endDate}</p>
-                      <p className="text-xs text-slate-400">Reason: {leave.reason}</p>
+                      <p className="text-xs text-slate-700">{leave.type}: {leave.startDate} to {leave.endDate}</p>
+                      <p className="text-xs text-slate-500">Reason: {leave.reason}</p>
                     </div>
 
                     {/* Officer Approval Buttons */}
                     {isOfficerView && leave.status === "Pending" && (
                       <div className="flex items-center gap-2 shrink-0">
-                        <Button size="sm" onClick={() => handleApproveLeave(leave.id)} className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs gap-1.5 rounded-xl font-semibold shadow-md">
+                        <Button size="sm" onClick={() => handleApproveLeave(leave.id)} className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs gap-1.5 rounded-lg font-bold">
                           <Check className="h-4 w-4" /> Approve
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleRejectLeave(leave.id)} className="border-red-500/30 text-red-300 hover:bg-red-500/20 text-xs gap-1.5 rounded-xl">
+                        <Button size="sm" variant="outline" onClick={() => handleRejectLeave(leave.id)} className="border-red-200 text-red-700 hover:bg-red-50 text-xs gap-1.5 rounded-lg font-bold">
                           <XCircle className="h-4 w-4" /> Reject
                         </Button>
                       </div>
                     )}
-                  </Card>
+                  </div>
                 ))}
               </div>
 
               {/* Leave Application Form */}
-              <Card className="bg-slate-900/80 border-slate-800 p-6 rounded-2xl shadow-2xl space-y-4">
-                <h3 className="text-sm font-bold text-white">Apply For Leave</h3>
-                <div className="space-y-3.5 text-xs">
+              <div className="bg-white border border-slate-200/90 p-5 rounded-xl shadow-sm space-y-4">
+                <h3 className="text-sm font-bold text-slate-900">Apply For Leave</h3>
+                <div className="space-y-3 text-xs">
                   <div>
-                    <Label className="text-slate-300">Start Date</Label>
-                    <Input type="date" value={newLeave.startDate} onChange={e => setNewLeave({ ...newLeave, startDate: e.target.value })} className="bg-slate-950 border-slate-800 text-white mt-1 rounded-xl text-xs" />
+                    <Label className="text-slate-700 font-bold">Start Date</Label>
+                    <Input type="date" value={newLeave.startDate} onChange={e => setNewLeave({ ...newLeave, startDate: e.target.value })} className="bg-slate-50 border-slate-300 text-slate-900 mt-1 rounded-lg text-xs" />
                   </div>
                   <div>
-                    <Label className="text-slate-300">End Date</Label>
-                    <Input type="date" value={newLeave.endDate} onChange={e => setNewLeave({ ...newLeave, endDate: e.target.value })} className="bg-slate-950 border-slate-800 text-white mt-1 rounded-xl text-xs" />
+                    <Label className="text-slate-700 font-bold">End Date</Label>
+                    <Input type="date" value={newLeave.endDate} onChange={e => setNewLeave({ ...newLeave, endDate: e.target.value })} className="bg-slate-50 border-slate-300 text-slate-900 mt-1 rounded-lg text-xs" />
                   </div>
                   <div>
-                    <Label className="text-slate-300">Leave Type</Label>
+                    <Label className="text-slate-700 font-bold">Leave Type</Label>
                     <select
                       value={newLeave.type}
                       onChange={e => setNewLeave({ ...newLeave, type: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white mt-1 text-xs"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-900 mt-1 text-xs"
                     >
                       <option value="Casual Leave">Casual Leave</option>
                       <option value="Sick Leave">Sick Leave</option>
@@ -738,8 +766,8 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
                     </select>
                   </div>
                   <div>
-                    <Label className="text-slate-300">Reason</Label>
-                    <Textarea value={newLeave.reason} onChange={e => setNewLeave({ ...newLeave, reason: e.target.value })} placeholder="Reason for leave..." className="bg-slate-950 border-slate-800 text-white mt-1 text-xs rounded-xl" />
+                    <Label className="text-slate-700 font-bold">Reason</Label>
+                    <Textarea value={newLeave.reason} onChange={e => setNewLeave({ ...newLeave, reason: e.target.value })} placeholder="Reason for leave..." className="bg-slate-50 border-slate-300 text-slate-900 mt-1 text-xs rounded-lg" />
                   </div>
                   <Button
                     onClick={() => {
@@ -748,12 +776,12 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
                       setNewLeave({ startDate: "", endDate: "", type: "Casual Leave", reason: "" });
                       alert("Leave Application Submitted!");
                     }}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-xl shadow-lg shadow-blue-600/25"
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg shadow-sm"
                   >
                     Submit Leave Application
                   </Button>
                 </div>
-              </Card>
+              </div>
             </div>
           </div>
         )}
@@ -762,24 +790,24 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
         {activeTab === "welfare" && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-bold text-white tracking-tight">Worker Welfare Catalog</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Redeem points earned from AI-inspected task completions for municipal welfare vouchers</p>
+              <h2 className="text-base font-bold text-slate-900 tracking-tight">Worker Welfare Catalog</h2>
+              <p className="text-xs text-slate-500 mt-0.5">Redeem earned points for municipal welfare vouchers</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {welfareCatalog.map((item, idx) => (
-                <Card key={idx} className="bg-slate-900/80 border-slate-800 p-5 rounded-2xl shadow-2xl flex items-center justify-between gap-4">
+                <div key={idx} className="bg-white border border-slate-200/90 p-5 rounded-xl shadow-sm flex items-center justify-between gap-4">
                   <div className="space-y-1">
-                    <h3 className="text-sm font-bold text-white">{item.item}</h3>
-                    <p className="text-xs text-slate-400">{item.desc}</p>
-                    <span className="text-xs font-bold text-amber-400 mt-2 inline-block bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                    <h3 className="text-sm font-bold text-slate-900">{item.item}</h3>
+                    <p className="text-xs text-slate-500">{item.desc}</p>
+                    <span className="text-xs font-bold text-amber-700 mt-2 inline-block bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
                       {item.cost} Points
                     </span>
                   </div>
-                  <Button size="sm" onClick={() => handleRedeemWelfare(item)} className="bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-lg shadow-amber-600/20 shrink-0">
+                  <Button size="sm" onClick={() => handleRedeemWelfare(item)} className="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm shrink-0">
                     Redeem
                   </Button>
-                </Card>
+                </div>
               ))}
             </div>
           </div>
@@ -789,22 +817,22 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
 
       {/* DISPATCH TASK MODAL (Officer Only) */}
       {dispatchModalOpen && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <Card className="bg-slate-900 border-slate-800 w-full max-w-lg p-6 space-y-5 rounded-2xl shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3.5">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <PlusCircle className="h-5 w-5 text-blue-400" /> Dispatch Field Task to Worker
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-lg p-6 space-y-5 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <PlusCircle className="h-5 w-5 text-blue-600" /> Dispatch Field Task to Worker
               </h3>
-              <button onClick={() => setDispatchModalOpen(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
+              <button onClick={() => setDispatchModalOpen(false)} className="text-slate-400 hover:text-slate-700 font-bold text-base">✕</button>
             </div>
 
             <form onSubmit={handleDispatchSubmit} className="space-y-4 text-xs">
               <div>
-                <Label className="text-slate-300">Task Category</Label>
+                <Label className="text-slate-700 font-bold">Task Category</Label>
                 <select
                   value={dispatchForm.category}
                   onChange={e => setDispatchForm({ ...dispatchForm, category: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white mt-1 text-xs"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-900 mt-1 text-xs"
                 >
                   <option value="Pothole Repair">Pothole Repair</option>
                   <option value="Garbage Collection">Garbage Collection</option>
@@ -814,22 +842,22 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
               </div>
 
               <div>
-                <Label className="text-slate-300">Location / Intersection</Label>
+                <Label className="text-slate-700 font-bold">Location / Intersection</Label>
                 <Input
                   value={dispatchForm.location}
                   onChange={e => setDispatchForm({ ...dispatchForm, location: e.target.value })}
                   placeholder="e.g. Main Street & 5th Ave"
-                  className="bg-slate-950 border-slate-800 text-white mt-1 text-xs rounded-xl"
+                  className="bg-slate-50 border-slate-300 text-slate-900 mt-1 text-xs rounded-lg"
                   required
                 />
               </div>
 
               <div>
-                <Label className="text-slate-300">Assign Field Worker</Label>
+                <Label className="text-slate-700 font-bold">Assign Field Worker</Label>
                 <select
                   value={dispatchForm.assignedWorker}
                   onChange={e => setDispatchForm({ ...dispatchForm, assignedWorker: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white mt-1 text-xs"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-900 mt-1 text-xs"
                 >
                   <option value="Rajesh Kumar (ID: W-402)">Rajesh Kumar (ID: W-402)</option>
                   <option value="Amit Singh (ID: W-109)">Amit Singh (ID: W-109)</option>
@@ -838,59 +866,59 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
               </div>
 
               <div>
-                <Label className="text-slate-300">Task Description & Field Notes</Label>
+                <Label className="text-slate-700 font-bold">Task Description & Instructions</Label>
                 <Textarea
                   value={dispatchForm.description}
                   onChange={e => setDispatchForm({ ...dispatchForm, description: e.target.value })}
                   placeholder="Specific field instructions..."
-                  className="bg-slate-950 border-slate-800 text-white mt-1 text-xs rounded-xl"
+                  className="bg-slate-50 border-slate-300 text-slate-900 mt-1 text-xs rounded-lg"
                   required
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
-                <Button type="button" variant="outline" onClick={() => setDispatchModalOpen(false)} className="border-slate-800 text-slate-300 rounded-xl">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+                <Button type="button" variant="outline" onClick={() => setDispatchModalOpen(false)} className="border-slate-300 text-slate-700 rounded-lg">
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl px-5">
+                <Button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg px-5">
                   Dispatch Task Now
                 </Button>
               </div>
             </form>
-          </Card>
+          </div>
         </div>
       )}
 
       {/* QR VERIFICATION MODAL */}
       {qrModalOpen && selectedTask && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <Card className="bg-slate-900 border-slate-800 w-full max-w-sm p-6 text-center space-y-4 rounded-2xl shadow-2xl">
-            <h3 className="text-base font-bold text-white">Scan Site QR Code</h3>
-            <p className="text-xs text-slate-400">Match code string: <span className="font-mono text-amber-400 font-bold">{selectedTask.qrCode}</span></p>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 w-full max-w-sm p-6 text-center space-y-4 rounded-2xl shadow-2xl">
+            <h3 className="text-base font-bold text-slate-900">Scan Site QR Code</h3>
+            <p className="text-xs text-slate-500">Match code string: <span className="font-mono text-amber-700 font-bold">{selectedTask.qrCode}</span></p>
             <Input
               value={qrCodeInput}
               onChange={e => setQrCodeInput(e.target.value)}
               placeholder="Enter or scan QR string..."
-              className="bg-slate-950 border-slate-800 text-white text-center font-mono text-xs rounded-xl"
+              className="bg-slate-50 border-slate-300 text-slate-900 text-center font-mono text-xs rounded-lg"
             />
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setQrModalOpen(false)} className="w-1/2 border-slate-800 text-slate-300 rounded-xl">Cancel</Button>
-              <Button onClick={submitQrCode} className="w-1/2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl">Verify Code</Button>
+              <Button variant="outline" onClick={() => setQrModalOpen(false)} className="w-1/2 border-slate-300 text-slate-700 rounded-lg">Cancel</Button>
+              <Button onClick={submitQrCode} className="w-1/2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold">Verify Code</Button>
             </div>
-          </Card>
+          </div>
         </div>
       )}
 
       {/* AI INSPECTION MODAL */}
       {isVerifying && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <Card className="bg-slate-900 border-slate-800 w-full max-w-md p-6 text-center space-y-4 rounded-2xl shadow-2xl">
-            <Sparkles className="h-10 w-10 text-emerald-400 mx-auto animate-spin" />
-            <h3 className="text-base font-bold text-white">AI Vision Inspection in Progress...</h3>
-            <p className="text-xs text-slate-400">Analyzing before/after repair surface quality and bitumen density</p>
-            <Progress value={verifyProgress} className="h-2 bg-slate-950" />
-            <span className="text-xs font-mono text-emerald-400 font-bold">{verifyProgress}% Complete</span>
-          </Card>
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 w-full max-w-md p-6 text-center space-y-4 rounded-2xl shadow-2xl">
+            <Sparkles className="h-10 w-10 text-emerald-600 mx-auto animate-spin" />
+            <h3 className="text-base font-bold text-slate-900">AI Vision Inspection in Progress...</h3>
+            <p className="text-xs text-slate-500">Analyzing before/after repair surface quality and bitumen density</p>
+            <Progress value={verifyProgress} className="h-2 bg-slate-100" />
+            <span className="text-xs font-mono text-emerald-700 font-bold">{verifyProgress}% Complete</span>
+          </div>
         </div>
       )}
     </div>
