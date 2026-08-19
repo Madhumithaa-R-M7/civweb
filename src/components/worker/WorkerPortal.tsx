@@ -198,7 +198,7 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
 
     const unsubscribeTasks = subscribeToTasks((fireTasks) => {
       if (fireTasks && fireTasks.length > 0) {
-        setTasks(fireTasks);
+        setTasks(fireTasks as WorkerTask[]);
       }
     });
 
@@ -297,7 +297,7 @@ export function WorkerPortal({ onLogout, isOfficerView = false }: WorkerPortalPr
   };
 
   const handleCompleteTask = (task: WorkerTask) => {
-    const updates = { status: "Completed" };
+    const updates = { status: "Completed" as const };
     setTasks(tasks.map(t => t.id === task.id ? { ...t, ...updates } : t));
     updateTaskInFirestore(task.id, updates);
     setPoints(prev => prev + 50);
